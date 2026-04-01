@@ -35,7 +35,7 @@ class Equipo(EquipoBase):
 class OrdenBase(BaseModel):
     problema: str
     checklist: Dict[str, bool] = {}
-    precio_estimado: Optional[Decimal] = None
+    precio_estimado: Optional[Decimal] = 0.0
     diagnostico_ia: Optional[str] = None
     fotos: Optional[str] = None
     sena: Optional[Decimal] = 0.0
@@ -46,8 +46,8 @@ class OrdenCreate(OrdenBase):
     cliente_nombre: Optional[str] = None
     cliente_telefono: Optional[str] = None
     
-    equipo_marca: str
-    equipo_modelo: str
+    equipo_marca: Optional[str] = "Genérico"
+    equipo_modelo: Optional[str] = "Desconocido"
     equipo_imei: Optional[str] = None
     equipo_pin: Optional[str] = None
     

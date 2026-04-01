@@ -15,15 +15,18 @@ from app.models.orden import Orden, OrdenEstadoLog
 from app.models.conocimiento import MetodoConocimiento, MetodoEmbedding
 from app.models.config import Configuracion
 
-from sqlalchemy import text
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Create tables on startup if they don't exist
-    async with engine.begin() as conn:
-        # Habilitar extensión pgvector para la base de conocimiento
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        async with engine.begin() as conn:
+            # Habilitar extensión opcionalmente (ya no es obligatoria para arrancar)
+            # await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+            await conn.run_sync(Base.metadata.create_all)
+        print("Base de datos inicializada correctamente! 🚀")
+    except Exception as e:
+        print(f"Error inicializando la base de datos: {e}")
+        # No detenemos el servidor, permitimos que arranque para que el Dashboard no quede en blanco
     yield
 
 app = FastAPI(
