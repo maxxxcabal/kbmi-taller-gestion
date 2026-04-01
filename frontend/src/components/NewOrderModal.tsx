@@ -5,7 +5,7 @@ import { X, User, Smartphone, ClipboardList, PenTool, Camera, Trash2, DollarSign
 
 import { useRouter } from 'next/navigation';
 import { SignaturePad } from './SignaturePad';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, pingBackend, API_BASE_URL } from '@/lib/api';
 
 interface NewOrderModalProps {
   isOpen: boolean;
@@ -14,13 +14,14 @@ interface NewOrderModalProps {
 
 export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose }) => {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [config, setConfig] = useState<any>(null);
-  
+
   const [formData, setFormData] = useState({
     cliente_nombre: '',
     cliente_telefono: '',
@@ -42,6 +43,13 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
     sena: 0
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      pingBackend(); // Wake up backend immediately when order started
+      apiFetch('/config/').then(setConfig).catch(console.error);
+    }
+  }, [isOpen]);
+
   const handlePinSave = useCallback((data: string) => {
     setFormData(prev => ({ ...prev, equipo_pin: data }));
   }, []);
@@ -49,12 +57,6 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
   const handleSignatureSave = useCallback((data: string) => {
     setFormData(prev => ({ ...prev, signature_data: data }));
   }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      apiFetch('/config/').then(setConfig).catch(console.error);
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -86,7 +88,8 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         const uploadFormData = new FormData();
         selectedFiles.forEach(file => uploadFormData.append('files', file));
         
-        const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/uploads/`, {
+        const uploadUrl = API_BASE_URL.endsWith('/') ? `${API_BASE_URL}uploads/` : `${API_BASE_URL}/uploads/`;
+        const uploadRes = await fetch(uploadUrl, {
           method: 'POST',
           body: uploadFormData
         });

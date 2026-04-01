@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: "Sistema SaaS de gestión de reparación de celulares",
 };
 
-import React from "react";
+import { WakeUp } from "@/components/WakeUp";
 
 export default function RootLayout({
   children,
@@ -32,6 +32,7 @@ export default function RootLayout({
       <body className={`${syne.variable} ${jetbrainsMono.variable} antialiased h-screen w-screen overflow-hidden flex text-[var(--text)] bg-[var(--bg)]`}>
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
+            <WakeUp />
             <AppLayout>
               {children}
             </AppLayout>
