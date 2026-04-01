@@ -134,8 +134,8 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in transition-all">
-      <div className="bg-[var(--sidebar)] border border-[var(--border)] w-full max-w-[500px] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in transition-all p-4">
+      <div className="bg-[var(--sidebar)] border border-[var(--border)] w-full max-w-[500px] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
         
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-[var(--border)]">
@@ -154,7 +154,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         </div>
 
         {/* Content */}
-        <div className="p-6 min-h-[350px]">
+        <div className="p-4 md:p-6 min-h-[350px] overflow-y-auto flex-1">
           
           {step === 1 && (
             <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">

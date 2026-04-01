@@ -73,7 +73,7 @@ export default function OrdenesPage() {
     <div className="animate-in fade-in flex flex-col gap-6">
       
       {/* Stats Grid */}
-      <div className="grid grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div className="bg-[var(--sidebar)] border border-[var(--border)] rounded-xl py-[18px] px-5 relative overflow-hidden transition-colors hover:border-[var(--border2)] before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:bg-gradient-to-r before:from-[var(--accent)] before:to-transparent">
           <div className="text-[10px] font-mono text-[var(--text3)] uppercase tracking-[1px] mb-2.5">
             Ingresado
@@ -134,7 +134,7 @@ export default function OrdenesPage() {
           </div>
         </div>
 
-        <div className="bg-[var(--sidebar)] border border-[var(--border)] rounded-xl overflow-hidden min-h-[400px]">
+        <div className="bg-[var(--sidebar)] border border-[var(--border)] rounded-xl overflow-x-auto min-h-[400px]">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3 opacity-50">
               <Loader2 className="w-6 h-6 animate-spin text-[var(--accent)]" />

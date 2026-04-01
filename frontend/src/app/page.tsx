@@ -70,7 +70,7 @@ export default function Dashboard() {
     <div className="animate-in fade-in flex flex-col gap-6">
       
       {/* Stats Grid */}
-      <div className="grid grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <StatCard 
           label="Órdenes activas" 
           value={stats.activas} 
@@ -97,7 +97,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Urgency List */}
         <div className="bg-[var(--sidebar)] border border-[var(--border)] rounded-xl p-4.5">
           <div className="flex items-center justify-between mb-3.5">

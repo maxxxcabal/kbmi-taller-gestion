@@ -11,12 +11,18 @@ import {
   Settings, 
   ShoppingCart, 
   Package, 
-  BarChart 
+  BarChart,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname() || "/";
   const [config, setConfig] = useState<any>(null);
 
@@ -34,9 +40,14 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-[220px] min-w-[220px] bg-[var(--sidebar)] border-r border-[var(--border)] flex flex-col p-0 overflow-y-auto h-full text-white">
+    <aside className={`fixed inset-y-0 left-0 z-50 w-[240px] md:w-[220px] md:min-w-[220px] bg-[var(--sidebar)] border-r border-[var(--border)] flex flex-col p-0 overflow-y-auto h-full text-white transform transition-transform duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
       {/* Logo Section */}
-      <div className="px-[18px] py-6 pb-5 border-b border-[var(--border)]">
+      <div className="px-[18px] py-6 pb-5 border-b border-[var(--border)] relative">
+        {onClose && (
+          <button onClick={onClose} className="absolute right-4 top-6 text-[var(--text3)] hover:text-white md:hidden">
+            <X size={20} />
+          </button>
+        )}
         <div className="flex items-center gap-3">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-[1px] text-2xl font-black tracking-tighter leading-none">
