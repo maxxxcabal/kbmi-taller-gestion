@@ -222,7 +222,14 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-mono text-[var(--text3)] mb-1.5 uppercase">Patrón / PIN de Desbloqueo</label>
+                <label className="block text-[11px] font-mono text-[var(--text3)] mb-1.5 uppercase">Patrón / PIN Numérico</label>
+                <input 
+                  type="text" 
+                  className="w-full bg-[var(--card)] border border-[var(--border2)] rounded-lg px-3.5 py-2.5 text-xs text-[var(--text)] focus:border-[var(--accent)] outline-none transition-colors mb-2"
+                  placeholder="Ej: 1234 o Ninguno"
+                  value={formData.equipo_pin.startsWith('data:image') ? '' : formData.equipo_pin}
+                  onChange={e => setFormData({...formData, equipo_pin: e.target.value})}
+                />
                 <div className="bg-white border border-[var(--border2)] rounded-xl relative overflow-hidden h-32">
                    <SignaturePad 
                      onSave={(data) => setFormData({ ...formData, equipo_pin: data })}
