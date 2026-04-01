@@ -12,8 +12,8 @@ from app.routers import clientes, ordenes, conocimiento, uploads, config, auth
 from app.models.cliente import Cliente
 from app.models.equipo import Equipo
 from app.models.orden import Orden, OrdenEstadoLog
-from app.models.conocimiento import MetodoSolucion, CategoriaMetodo
-from app.models.config import ConfigTaller
+from app.models.conocimiento import MetodoConocimiento, MetodoEmbedding
+from app.models.config import Configuracion
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
