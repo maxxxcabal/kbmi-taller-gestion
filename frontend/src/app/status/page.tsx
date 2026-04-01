@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
 import { Clock, CheckCircle2, AlertCircle, Smartphone, User, Wrench, Package, ShieldCheck } from 'lucide-react';
 import { format } from 'date-fns';
@@ -16,11 +15,20 @@ const STEPS = [
 ];
 
 export default function StatusPage() {
-  const params = useParams();
-  const token = params.token;
+  const [token, setToken] = useState<string | null>(null);
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const searchToken = new URLSearchParams(window.location.search).get('token');
+    if (searchToken) {
+      setToken(searchToken);
+    } else {
+      setLoading(false);
+      setError(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (token) {

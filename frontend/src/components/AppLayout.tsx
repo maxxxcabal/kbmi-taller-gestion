@@ -8,7 +8,7 @@ import { Suspense } from "react";
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   
-  const isPublicRoute = pathname === "/login" || pathname?.startsWith("/status/");
+  const isPublicRoute = pathname === "/login" || pathname === "/status" || pathname === "/receipt";
 
   if (isPublicRoute) {
     return (

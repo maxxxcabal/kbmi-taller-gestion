@@ -124,7 +124,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         precio_estimado: 0,
         sena: 0
       });
-      router.push(`/receipt/${data.id}`);
+      router.push(`/receipt?id=${data.id}`);
     } catch (error: any) {
       console.error(error);
       alert(error.message || "Error al conectar con el servidor.");

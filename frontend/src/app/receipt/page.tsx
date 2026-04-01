@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
 import { Printer, Share2, CheckCircle2, Smartphone, ClipboardList } from 'lucide-react';
 
 export default function ReceiptPage() {
-  const params = useParams();
-  const id = params.id as string;
+  const [id, setId] = useState<string | null>(null);
   const [order, setOrder] = useState<any>(null);
   const [config, setConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -14,6 +12,12 @@ export default function ReceiptPage() {
   const [isTagMode, setIsTagMode] = useState(false);
 
   useEffect(() => {
+    const searchId = new URLSearchParams(window.location.search).get('id');
+    setId(searchId);
+  }, []);
+
+  useEffect(() => {
+    if (!id) return;
     const fetchData = async () => {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';

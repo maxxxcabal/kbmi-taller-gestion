@@ -80,7 +80,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
 
   const copyTrackingLink = () => {
     if (!order) return;
-    const trackingUrl = `${window.location.origin}/status/${order.token_seguimiento}`;
+    const trackingUrl = `${window.location.origin}/status?token=${order.token_seguimiento}`;
     navigator.clipboard.writeText(trackingUrl);
     setCopying(true);
     setTimeout(() => setCopying(false), 2000);
@@ -90,7 +90,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
     if (!order || !config) return;
     const phone = order.cliente.telefono.replace(/\D/g, '');
     const baseUrl = window.location.origin;
-    const receiptUrl = `${baseUrl}/receipt/${order.id}`;
+    const receiptUrl = `${baseUrl}/receipt?id=${order.id}`;
     
     let message = "";
     if (type === 'receipt') {
