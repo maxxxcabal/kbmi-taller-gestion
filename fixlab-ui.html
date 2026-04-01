@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FixLab — Sistema para Talleres</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1117;
+    --bg3: #111820;
+    --bg4: #161e28;
+    --border: #1e2d3d;
+    --border2: #243347;
+    --accent: #00e5b0;
+    --accent2: #00c4f0;
+    --accent-dim: rgba(0,229,176,0.08);
+    --accent-dim2: rgba(0,229,176,0.15);
+    --text: #e2eaf4;
+    --text2: #7a91a8;
+    --text3: #4a6070;
+    --red: #ff4d6a;
+    --yellow: #f0b429;
+    --green: #00e5b0;
+    --blue: #00c4f0;
+    --orange: #ff8c42;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  .logo {
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 30px;
+    height: 30px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-sub {
+    font-size: 9px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .nav-section {
+    padding: 14px 10px 4px;
+  }
+
+  .nav-label {
+    font-size: 9px;
+    font-family: var(--mono);
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 0 8px;
+    margin-bottom: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    transition: all 0.15s;
+    position: relative;
+    margin-bottom: 1px;
+  }
+
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+
+  .nav-item.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(0,229,176,0.2);
+  }
+
+  .nav-item .icon { font-size: 14px; width: 16px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: white;
+    font-size: 9px;
+    font-family: var(--mono);
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 10px;
+  }
+
+  .nav-badge.green { background: var(--accent); color: var(--bg); }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 12px 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .user-card:hover { background: var(--bg3); }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .user-name { font-size: 12px; font-weight: 700; color: var(--text); }
+  .user-role { font-size: 10px; font-family: var(--mono); color: var(--text3); }
+
+  /* ── MAIN ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .topbar {
+    height: 54px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+
+  .page-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+    width: 220px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .search-box:hover { border-color: var(--border2); }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 7px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .btn-primary:hover { background: #00ffca; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--bg3); color: var(--text); }
+
+  /* ── CONTENT AREA ── */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── PAGES ── */
+  .page { display: none; flex-direction: column; gap: 24px; }
+  .page.active { display: flex; animation: fadeIn 0.2s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── STATS ROW ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--border2); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .stat-card.red::before { background: linear-gradient(90deg, var(--red), transparent); }
+  .stat-card.blue::before { background: linear-gradient(90deg, var(--blue), transparent); }
+  .stat-card.yellow::before { background: linear-gradient(90deg, var(--yellow), transparent); }
+
+  .stat-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text3);
+    margin-top: 6px;
+  }
+
+  .stat-sub span { color: var(--accent); }
+  .stat-sub span.red { color: var(--red); }
+
+  /* ── TABLE ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .table-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 16px;
+    text-align: left;
+  }
+
+  td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tbody tr:hover { background: var(--bg3); cursor: pointer; }
+
+  .device-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .device-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .device-name { font-weight: 700; font-size: 13px; }
+  .device-imei { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+  /* STATUS BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .badge-green { background: rgba(0,229,176,0.1); color: var(--accent); border: 1px solid rgba(0,229,176,0.2); }
+  .badge-yellow { background: rgba(240,180,41,0.1); color: var(--yellow); border: 1px solid rgba(240,180,41,0.2); }
+  .badge-red { background: rgba(255,77,106,0.1); color: var(--red); border: 1px solid rgba(255,77,106,0.2); }
+  .badge-blue { background: rgba(0,196,240,0.1); color: var(--blue); border: 1px solid rgba(0,196,240,0.2); }
+  .badge-gray { background: rgba(122,145,168,0.1); color: var(--text2); border: 1px solid rgba(122,145,168,0.2); }
+  .badge-orange { background: rgba(255,140,66,0.1); color: var(--orange); border: 1px solid rgba(255,140,66,0.2); }
+
+  /* ── KNOWLEDGE BASE ── */
+  .kb-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-chip:hover, .filter-chip.active {
+    background: var(--accent-dim);
+    border-color: rgba(0,229,176,0.3);
+    color: var(--accent);
+  }
+
+  .kb-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .kb-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .kb-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+
+  .kb-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .kb-device {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .kb-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 3px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .kb-meta span { color: var(--text2); }
+
+  .kb-desc {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .kb-tools {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tool-tag {
+    padding: 3px 9px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+  }
+
+  .kb-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .kb-votes {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .kb-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+  }
+
+  /* ── AI SEARCH ── */
+  .ai-search-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-search-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 0% 0%, rgba(0,229,176,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .ai-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ai-label::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .ai-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .ai-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 9px;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .ai-input:focus { border-color: var(--accent); }
+  .ai-input::placeholder { color: var(--text3); }
+
+  /* ── INVENTORY ── */
+  .inv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .inv-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.2s;
+  }
+  .inv-card:hover { border-color: var(--border2); }
+
+  .inv-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .inv-name { font-size: 13px; font-weight: 700; }
+  .inv-model { font-size: 11px; font-family: var(--mono); color: var(--text3); margin-top: 2px; }
+
+  .inv-stock {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .inv-stock.low { color: var(--red); }
+  .inv-stock.ok { color: var(--accent); }
+
+  .inv-bar {
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    margin: 10px 0;
+    overflow: hidden;
+  }
+
+  .inv-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+    transition: width 0.5s ease;
+  }
+  .inv-bar-fill.low { background: var(--red); }
+
+  .inv-price {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  .inv-price span { color: var(--text2); }
+
+  /* ── POS / CAJA ── */
+  .pos-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 16px;
+    height: 100%;
+  }
+
+  .pos-products {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .pos-cart {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .product-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .product-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    transform: translateY(-2px);
+  }
+
+  .product-emoji { font-size: 24px; margin-bottom: 8px; }
+  .product-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .product-price { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+
+  .cart-items { flex: 1; overflow-y: auto; }
+
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cart-item-name { flex: 1; font-size: 12px; font-weight: 700; }
+  .cart-item-qty {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+    background: var(--bg3);
+    padding: 2px 8px;
+    border-radius: 5px;
+  }
+  .cart-item-price { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+
+  .cart-total {
+    padding-top: 14px;
+    border-top: 1px solid var(--border2);
+    margin-top: 8px;
+  }
+
+  .cart-total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+
+  .cart-total-final {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 12px 0;
+    letter-spacing: -0.5px;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+  /* ── TWO COLS ── */
+  .two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  /* ── MINI CHART ── */
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 70px;
+    margin-top: 12px;
+  }
+
+  .chart-bar {
+    flex: 1;
+    background: var(--accent);
+    border-radius: 4px 4px 0 0;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    position: relative;
+  }
+  .chart-bar:hover { opacity: 1; }
+  .chart-bar.dim { background: var(--border2); opacity: 1; }
+
+  .chart-labels {
+    display: flex;
+    gap: 5px;
+    margin-top: 6px;
+  }
+  .chart-label {
+    flex: 1;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+  }
+
+  /* ── URGENCY LIST ── */
+  .urgency-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .urgency-item:last-child { border-bottom: none; }
+
+  .urgency-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .urgency-info { flex: 1; }
+  .urgency-device { font-size: 12px; font-weight: 700; }
+  .urgency-client { font-size: 11px; font-family: var(--mono); color: var(--text3); }
+  .urgency-time { font-family: var(--mono); font-size: 11px; color: var(--red); }
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">🔧</div>
+    <div>
+      <div class="logo-text">FixLab</div>
+      <div class="logo-sub">v1.0 — Taller</div>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="showPage('dashboard', this)">
+      <span class="icon">⬛</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('ordenes', this)">
+      <span class="icon">📋</span> Órdenes
+      <span class="nav-badge">7</span>
+    </div>
+    <div class="nav-item" onclick="showPage('clientes', this)">
+      <span class="icon">👤</span> Clientes
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Técnico</div>
+    <div class="nav-item" onclick="showPage('kb', this)">
+      <span class="icon">🧠</span> Base Conocimiento
+    </div>
+    <div class="nav-item" onclick="showPage('herramientas', this)">
+      <span class="icon">⚙️</span> Herramientas
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Negocio</div>
+    <div class="nav-item" onclick="showPage('pos', this)">
+      <span class="icon">🛒</span> Punto de Venta
+    </div>
+    <div class="nav-item" onclick="showPage('inventario', this)">
+      <span class="icon">📦</span> Inventario
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('stats', this)">
+      <span class="icon">📊</span> Estadísticas
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="avatar">MA</div>
+      <div>
+        <div class="user-name">Max</div>
+        <div class="user-role">Admin · Técnico</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="pageTitle">Dashboard</div>
+    <div class="topbar-right">
+      <div class="search-box">🔍 Buscar cliente, IMEI, modelo…</div>
+      <button class="btn btn-primary" onclick="alert('Nueva orden →')">+ Nueva Orden</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="page active" id="page-dashboard">
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Órdenes activas</div>
+          <div class="stat-value">7</div>
+          <div class="stat-sub"><span>+2</span> vs ayer</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Listas para retirar</div>
+          <div class="stat-value">3</div>
+          <div class="stat-sub"><span>Notificar</span> clientes</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">Esperando repuesto</div>
+          <div class="stat-value">2</div>
+          <div class="stat-sub"><span class="red">Urgente</span> 1</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Ingresos del mes</div>
+          <div class="stat-value">$284k</div>
+          <div class="stat-sub"><span>+18%</span> vs feb</div>
+        </div>
+      </div>
+
+      <div class="two-cols">
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title"><span class="dot"></span> Reparaciones urgentes</div>
+          </div>
+          <div class="urgency-item">
+            <div class="urgency-dot" style="background:var(--red)"></div>
+            <div class="urgency-info">
+              <div class="urgency-device">Samsung A54 · Pantalla</div>
+              <div class="urgency-client">Cliente: Lucía Gómez</div>
+            </div>
+            <div class="urgency-time">hace 3d</div>
+          </div>
+          <div class="urgency-item">
+            <div class="urgency-dot" style="background:var(--yellow)"></div>
+            <div class="urgency-info">
+              <div class="urgency-device">Motorola G84 · Pin carga</div>
+              <div class="urgency-client">Cliente: Rodrigo Paz</div>
+            </div>
+            <div class="urgency-time">hace 2d</div>
+          </div>
+          <div class="urgency-item">
+            <div class="urgency-dot" style="background:var(--yellow)"></div>
+            <div class="urgency-info">
+              <div class="urgency-device">iPhone 13 · FRP</div>
+              <div class="urgency-client">Cliente: Valeria Torres</div>
+            </div>
+            <div class="urgency-time">hace 2d</div>
+          </div>
+          <div class="urgency-item">
+            <div class="urgency-dot" style="background:var(--accent)"></div>
+            <div class="urgency-info">
+              <div class="urgency-device">Xiaomi Redmi 12 · Batería</div>
+              <div class="urgency-client">Cliente: Pablo Ruiz</div>
+            </div>
+            <div class="urgency-time">hace 1d</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title"><span class="dot"></span> Reparaciones este mes</div>
+          </div>
+          <div class="chart-bars">
+            <div class="chart-bar dim" style="height:40%"></div>
+            <div class="chart-bar dim" style="height:60%"></div>
+            <div class="chart-bar dim" style="height:45%"></div>
+            <div class="chart-bar dim" style="height:75%"></div>
+            <div class="chart-bar dim" style="height:55%"></div>
+            <div class="chart-bar dim" style="height:80%"></div>
+            <div class="chart-bar dim" style="height:65%"></div>
+            <div class="chart-bar" style="height:90%"></div>
+            <div class="chart-bar" style="height:70%"></div>
+            <div class="chart-bar" style="height:100%"></div>
+          </div>
+          <div class="chart-labels">
+            <div class="chart-label">1</div>
+            <div class="chart-label">2</div>
+            <div class="chart-label">3</div>
+            <div class="chart-label">4</div>
+            <div class="chart-label">5</div>
+            <div class="chart-label">6</div>
+            <div class="chart-label">7</div>
+            <div class="chart-label">8</div>
+            <div class="chart-label">9</div>
+            <div class="chart-label">10</div>
+          </div>
+          <div style="margin-top:14px; display:flex; gap:16px;">
+            <div>
+              <div style="font-size:11px;font-family:var(--mono);color:var(--text3)">Total</div>
+              <div style="font-size:18px;font-weight:800;color:var(--text)">38</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-family:var(--mono);color:var(--text3)">Promedio/día</div>
+              <div style="font-size:18px;font-weight:800;color:var(--accent)">3.8</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-family:var(--mono);color:var(--text3)">Ticket prom.</div>
+              <div style="font-size:18px;font-weight:800;color:var(--text)">$7.4k</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDENES ACTIVAS TABLA -->
+      <div>
+        <div class="section-header">
+          <div class="section-title"><span class="dot"></span> Órdenes activas</div>
+          <button class="btn btn-ghost" onclick="showPage('ordenes', document.querySelector('[onclick*=ordenes]'))">Ver todas →</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Dispositivo</th>
+                <th>Cliente</th>
+                <th>Problema</th>
+                <th>Estado</th>
+                <th>Técnico</th>
+                <th>Ingreso</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span style="font-family:var(--mono);color:var(--text3)">#0087</span></td>
+                <td><div class="device-cell"><div class="device-icon">📱</div><div><div class="device-name">Samsung A54</div><div class="device-imei">351234560001122</div></div></div></td>
+                <td>Lucía Gómez</td>
+                <td>Pantalla rota</td>
+                <td><span class="badge badge-yellow">Esperando repuesto</span></td>
+                <td>Max</td>
+                <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">07/03</td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);color:var(--text3)">#0088</span></td>
+                <td><div class="device-cell"><div class="device-icon">📱</div><div><div class="device-name">Motorola G84</div><div class="device-imei">352987650004433</div></div></div></td>
+                <td>Rodrigo Paz</td>
+                <td>Pin de carga</td>
+                <td><span class="badge badge-blue">En reparación</span></td>
+                <td>Max</td>
+                <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">08/03</td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);color:var(--text3)">#0089</span></td>
+                <td><div class="device-cell"><div class="device-icon">📱</div><div><div class="device-name">iPhone 13</div><div class="device-imei">359123450007788</div></div></div></td>
+                <td>Valeria Torres</td>
+                <td>FRP / bloqueo</td>
+                <td><span class="badge badge-orange">Diagnóstico</span></td>
+                <td>Max</td>
+                <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">08/03</td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);color:var(--text3)">#0090</span></td>
+                <td><div class="device-cell"><div class="device-icon">📱</div><div><div class="device-name">Redmi 12</div><div class="device-imei">867456310009921</div></div></div></td>
+                <td>Pablo Ruiz</td>
+                <td>Batería hinchada</td>
+                <td><span class="badge badge-green">Listo</span></td>
+                <td>Max</td>
+                <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">09/03</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ÓRDENES ═══ -->
+    <div class="page" id="page-ordenes">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Ingresado</div><div class="stat-value">2</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Diagnóstico / Rep.</div><div class="stat-value">3</div></div>
+        <div class="stat-card blue"><div class="stat-label">En reparación</div><div class="stat-value">1</div></div>
+        <div class="stat-card"><div class="stat-label">Listo p/ retirar</div><div class="stat-value" style="color:var(--accent)">3</div></div>
+      </div>
+
+      <div>
+        <div class="section-header">
+          <div class="section-title"><span class="dot"></span> Todas las órdenes activas</div>
+          <div style="display:flex;gap:8px;">
+            <div class="filter-chip active">Todas</div>
+            <div class="filter-chip">En proceso</div>
+            <div class="filter-chip">Listas</div>
+            <div class="filter-chip">Garantía</div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Dispositivo</th>
+                <th>Cliente</th>
+                <th>Problema</th>
+                <th>Diagnóstico IA</th>
+                <th>Precio</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span style="font-family:var(--mono);color:var(--text3)">#0087</span></td>
+                <td><div class="device-cell"><div class="device-icon">📱</div><div><div class="device-name">Samsung A54</div><div class="device-imei">IMEI 351234560001122</div></div></div></td>
+                <td>Lucía Gómez</td>
+                <td>Pantalla rota</td>
+                <td><span style="font-family:var(--mono);font-size:10px;color:var(--accent)">✦ Pantalla LCD · 92%</span></td>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">$12.500</span></td>
+                <td><span class="badge badge-yellow">Esp. repuesto</span></td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);color:var(--text3)">#0088</span></td>
+                <td><div class="device-cell"><div class="device-icon">📱</div><div><div class="device-name">Motorola G84</div><div class="device-imei">IMEI 352987650004433</div></div></div></td>
+                <td>Rodrigo Paz</td>
+                <td>No carga</td>
+                <td><span style="font-family:var(--mono);font-size:10px;color:var(--accent)">✦ Pin USB · 87%</span></td>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">$4.800</span></td>
+                <td><span class="badge badge-blue">En reparación</span></td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);color:var(--text3)">#0089</span></td>
+                <td><div class="device-cell"><div class="device-icon">📱</div><div><div class="device-name">iPhone 13</div><div class="device-imei">IMEI 359123450007788</div></div></div></td>
+                <td>Valeria Torres</td>
+                <td>Bloqueado FRP</td>
+                <td><span style="font-family:var(--mono);font-size:10px;color:var(--yellow)">✦ Ver método #14</span></td>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">$7.000</span></td>
+                <td><span class="badge badge-orange">Diagnóstico</span></td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);color:var(--text3)">#0090</span></td>
+                <td><div class="device-cell"><div class="device-icon">📱</div><div><div class="device-name">Redmi 12</div><div class="device-imei">IMEI 867456310009921</div></div></div></td>
+                <td>Pablo Ruiz</td>
+                <td>Batería</td>
+                <td><span style="font-family:var(--mono);font-size:10px;color:var(--accent)">✦ Batería · 98%</span></td>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">$5.200</span></td>
+                <td><span class="badge badge-green">✓ Listo</span></td>
+              </tr>
+              <tr>
+                <td><span style="font-family:var(--mono);color:var(--text3)">#0091</span></td>
+                <td><div class="device-cell"><div class="device-icon">📱</div><div><div class="device-name">Samsung A14</div><div class="device-imei">IMEI 354001230005544</div></div></div></td>
+                <td>Jorge Méndez</td>
+                <td>Sin señal</td>
+                <td><span style="font-family:var(--mono);font-size:10px;color:var(--text3)">— Pendiente</span></td>
+                <td><span style="font-family:var(--mono);font-size:12px;color:var(--text3)">—</span></td>
+                <td><span class="badge badge-gray">Ingresado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ KNOWLEDGE BASE ═══ -->
+    <div class="page" id="page-kb">
+
+      <div class="ai-search-box">
+        <div class="ai-label">✦ Búsqueda con IA</div>
+        <div class="ai-input-row">
+          <input class="ai-input" placeholder="Ej: Samsung A12 FRP binario 5 · Redmi sin arrancar · iPhone iCloud bypass…" id="aiInput">
+          <button class="btn btn-primary" onclick="aiSearch()">Buscar →</button>
+        </div>
+        <div id="aiResult" style="margin-top:12px;font-family:var(--mono);font-size:12px;color:var(--accent);display:none;"></div>
+      </div>
+
+      <div class="kb-filters">
+        <div class="filter-chip active">Todos</div>
+        <div class="filter-chip">FRP</div>
+        <div class="filter-chip">iCloud</div>
+        <div class="filter-chip">Pantalla</div>
+        <div class="filter-chip">Batería</div>
+        <div class="filter-chip">Software</div>
+        <div class="filter-chip">Flash</div>
+        <div class="filter-chip">Sin señal</div>
+        <div class="filter-chip">Arranque</div>
+      </div>
+
+      <div class="kb-grid">
+        <div class="kb-card">
+          <div class="kb-card-top">
+            <div>
+              <div class="kb-device">Samsung A12</div>
+              <div class="kb-meta">Android: <span>12</span> · Binario: <span>4</span> · Chip: <span>MT6765</span></div>
+            </div>
+            <span class="badge badge-red">FRP</span>
+          </div>
+          <div class="kb-desc">Usar SamFW con opción Remove FRP. Funciona hasta binario 4. Para binario 5 usar método alternativo con Odin + archivo combination.</div>
+          <div class="kb-tools">
+            <span class="tool-tag">SamFW</span>
+            <span class="tool-tag">Drivers Samsung</span>
+            <span class="tool-tag">Odin 3.14</span>
+          </div>
+          <div class="kb-footer">
+            <div class="kb-votes">✦ 12 confirmaciones</div>
+            <div class="kb-date">Guardado 15/01/26</div>
+          </div>
+        </div>
+
+        <div class="kb-card">
+          <div class="kb-card-top">
+            <div>
+              <div class="kb-device">Motorola G serie</div>
+              <div class="kb-meta">Android: <span>13</span> · Chip: <span>Snapdragon</span></div>
+            </div>
+            <span class="badge badge-blue">FRP</span>
+          </div>
+          <div class="kb-desc">Método via ADB: activar modo depuración desde marcación *#*#142#*#*, conectar PC, ejecutar script FRP-Moto. Reiniciar en modo recovery y borrar datos FRP.</div>
+          <div class="kb-tools">
+            <span class="tool-tag">ADB</span>
+            <span class="tool-tag">Script FRP-Moto</span>
+            <span class="tool-tag">Drivers Moto</span>
+          </div>
+          <div class="kb-footer">
+            <div class="kb-votes">✦ 8 confirmaciones</div>
+            <div class="kb-date">Guardado 22/02/26</div>
+          </div>
+        </div>
+
+        <div class="kb-card">
+          <div class="kb-card-top">
+            <div>
+              <div class="kb-device">Xiaomi Redmi 12</div>
+              <div class="kb-meta">MIUI: <span>14</span> · Android: <span>13</span></div>
+            </div>
+            <span class="badge badge-yellow">Arranque</span>
+          </div>
+          <div class="kb-desc">Sin arranque por actualización fallida. Entrar a Fastboot (Vol- + Power), flashear ROM via SP Flash Tool. Usar ROM estable de XiaomiFirmwareUpdater.</div>
+          <div class="kb-tools">
+            <span class="tool-tag">SP Flash Tool</span>
+            <span class="tool-tag">MiFlash</span>
+            <span class="tool-tag">ROM Fastboot</span>
+          </div>
+          <div class="kb-footer">
+            <div class="kb-votes">✦ 5 confirmaciones</div>
+            <div class="kb-date">Guardado 05/03/26</div>
+          </div>
+        </div>
+
+        <div class="kb-card" style="border-style:dashed; cursor:pointer; display:flex; align-items:center; justify-content:center; min-height:160px; flex-direction:column; gap:10px;">
+          <div style="font-size:24px;opacity:0.4">+</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text3)">Agregar nuevo método</div>
+          <div style="font-size:11px;font-family:var(--mono);color:var(--text3)">Guardá lo que funcionó hoy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ INVENTARIO ═══ -->
+    <div class="page" id="page-inventario">
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total productos</div><div class="stat-value">47</div></div>
+        <div class="stat-card red"><div class="stat-label">Stock crítico</div><div class="stat-value">3</div><div class="stat-sub"><span class="red">Reponer ya</span></div></div>
+        <div class="stat-card"><div class="stat-label">Valor en stock</div><div class="stat-value">$318k</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Productos en alerta</div><div class="stat-value">5</div></div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title"><span class="dot"></span> Stock de repuestos y accesorios</div>
+        <button class="btn btn-primary">+ Agregar producto</button>
+      </div>
+
+      <div class="inv-grid">
+        <div class="inv-card">
+          <div class="inv-top">
+            <div><div class="inv-name">Pantalla Samsung A54</div><div class="inv-model">Original OLED · Comp: A54 5G</div></div>
+            <div class="inv-stock low">2</div>
+          </div>
+          <div class="inv-bar"><div class="inv-bar-fill low" style="width:10%"></div></div>
+          <div class="inv-price">Costo: <span>$8.200</span> · Venta: <span>$14.500</span></div>
+        </div>
+
+        <div class="inv-card">
+          <div class="inv-top">
+            <div><div class="inv-name">Batería Redmi 12</div><div class="inv-model">BN5E 5000mAh</div></div>
+            <div class="inv-stock ok">8</div>
+          </div>
+          <div class="inv-bar"><div class="inv-bar-fill" style="width:53%"></div></div>
+          <div class="inv-price">Costo: <span>$1.800</span> · Venta: <span>$3.200</span></div>
+        </div>
+
+        <div class="inv-card">
+          <div class="inv-top">
+            <div><div class="inv-name">Cable USB-C 1m</div><div class="inv-model">Venta accesorio</div></div>
+            <div class="inv-stock ok">23</div>
+          </div>
+          <div class="inv-bar"><div class="inv-bar-fill" style="width:76%"></div></div>
+          <div class="inv-price">Costo: <span>$350</span> · Venta: <span>$900</span></div>
+        </div>
+
+        <div class="inv-card">
+          <div class="inv-top">
+            <div><div class="inv-name">Cargador 20W USB-C</div><div class="inv-model">Venta accesorio</div></div>
+            <div class="inv-stock low">1</div>
+          </div>
+          <div class="inv-bar"><div class="inv-bar-fill low" style="width:5%"></div></div>
+          <div class="inv-price">Costo: <span>$1.200</span> · Venta: <span>$2.800</span></div>
+        </div>
+
+        <div class="inv-card">
+          <div class="inv-top">
+            <div><div class="inv-name">Conector carga Moto G84</div><div class="inv-model">USB-C dock flex</div></div>
+            <div class="inv-stock ok">5</div>
+          </div>
+          <div class="inv-bar"><div class="inv-bar-fill" style="width:33%"></div></div>
+          <div class="inv-price">Costo: <span>$680</span> · Venta: <span>$1.500</span></div>
+        </div>
+
+        <div class="inv-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-height:100px;cursor:pointer;">
+          <div style="font-size:20px;opacity:0.4">+</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text3)">Nuevo producto</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PUNTO DE VENTA ═══ -->
+    <div class="page" id="page-pos">
+      <div class="pos-layout">
+        <div class="pos-products">
+          <div class="section-title" style="margin-bottom:4px;"><span class="dot"></span> Productos</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:4px;">Hacé click para agregar al carrito</div>
+          <div class="product-grid">
+            <div class="product-card" onclick="addToCart('Cable USB-C','900')">
+              <div class="product-emoji">🔌</div>
+              <div class="product-name">Cable USB-C</div>
+              <div class="product-price">$900</div>
+            </div>
+            <div class="product-card" onclick="addToCart('Cargador 20W','2800')">
+              <div class="product-emoji">⚡</div>
+              <div class="product-name">Cargador 20W</div>
+              <div class="product-price">$2.800</div>
+            </div>
+            <div class="product-card" onclick="addToCart('Vidrio templado','800')">
+              <div class="product-emoji">🛡️</div>
+              <div class="product-name">Vidrio templado</div>
+              <div class="product-price">$800</div>
+            </div>
+            <div class="product-card" onclick="addToCart('Auriculares in-ear','1500')">
+              <div class="product-emoji">🎧</div>
+              <div class="product-name">Auriculares</div>
+              <div class="product-price">$1.500</div>
+            </div>
+            <div class="product-card" onclick="addToCart('Funda silicona','650')">
+              <div class="product-emoji">📱</div>
+              <div class="product-name">Funda silicona</div>
+              <div class="product-price">$650</div>
+            </div>
+            <div class="product-card" onclick="addToCart('Adaptador USB-C/A','700')">
+              <div class="product-emoji">🔄</div>
+              <div class="product-name">Adaptador USB</div>
+              <div class="product-price">$700</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pos-cart">
+          <div class="section-title" style="margin-bottom:14px;"><span class="dot"></span> Carrito</div>
+          <div class="cart-items" id="cartItems">
+            <div style="color:var(--text3);font-family:var(--mono);font-size:12px;text-align:center;padding:20px 0;">Agregá productos →</div>
+          </div>
+          <div class="cart-total">
+            <div class="cart-total-row"><span>Subtotal</span><span id="subtotal">$0</span></div>
+            <div class="cart-total-row"><span>Efectivo (-5%)</span><span id="discount">−$0</span></div>
+            <div class="cart-total-final"><span>Total</span><span id="total">$0</span></div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:14px;" onclick="processSale()">Cobrar →</button>
+            <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px;" onclick="clearCart()">Limpiar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ HERRAMIENTAS ═══ -->
+    <div class="page" id="page-herramientas">
+      <div class="section-header">
+        <div class="section-title"><span class="dot"></span> Herramientas del taller</div>
+        <button class="btn btn-primary">+ Agregar</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Herramienta</th>
+              <th>Versión</th>
+              <th>Tipo</th>
+              <th>Compatibilidad</th>
+              <th>Métodos relacionados</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>SamFW Tool</strong></td>
+              <td><span style="font-family:var(--mono);font-size:11px">4.1</span></td>
+              <td><span class="badge badge-blue">FRP</span></td>
+              <td><span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Samsung A/M/S series</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--accent)">7 métodos</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--blue)">samfw.com</span></td>
+            </tr>
+            <tr>
+              <td><strong>SP Flash Tool</strong></td>
+              <td><span style="font-family:var(--mono);font-size:11px">5.2044</span></td>
+              <td><span class="badge badge-yellow">Flash</span></td>
+              <td><span style="font-family:var(--mono);font-size:10px;color:var(--text3)">MediaTek (MT6xxx)</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--accent)">4 métodos</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--blue)">spflashtool.com</span></td>
+            </tr>
+            <tr>
+              <td><strong>Odin</strong></td>
+              <td><span style="font-family:var(--mono);font-size:11px">3.14.4</span></td>
+              <td><span class="badge badge-blue">Flash</span></td>
+              <td><span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Samsung exclusivo</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--accent)">5 métodos</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--blue)">odindownload.com</span></td>
+            </tr>
+            <tr>
+              <td><strong>UnlockTool</strong></td>
+              <td><span style="font-family:var(--mono);font-size:11px">2026.02</span></td>
+              <td><span class="badge badge-green">Desbloqueo</span></td>
+              <td><span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Multimarca</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--accent)">11 métodos</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--blue)">unlocktool.net</span></td>
+            </tr>
+            <tr>
+              <td><strong>MiFlash</strong></td>
+              <td><span style="font-family:var(--mono);font-size:11px">20230428</span></td>
+              <td><span class="badge badge-yellow">Flash</span></td>
+              <td><span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Xiaomi / Poco</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--accent)">3 métodos</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--blue)">miui.com</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ CLIENTES ═══ -->
+    <div class="page" id="page-clientes">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total clientes</div><div class="stat-value">142</div></div>
+        <div class="stat-card"><div class="stat-label">Nuevos este mes</div><div class="stat-value">18</div><div class="stat-sub"><span>+12%</span></div></div>
+        <div class="stat-card blue"><div class="stat-label">Recurrentes</div><div class="stat-value">67</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Con garantía activa</div><div class="stat-value">9</div></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Cliente</th><th>Teléfono</th><th>Reparaciones</th><th>Última visita</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Lucía Gómez</strong></td>
+              <td><span style="font-family:var(--mono);font-size:12px">+54 9 3772 411234</span></td>
+              <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">4 equipos</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--text3)">07/03/26</span></td>
+              <td><span class="badge badge-yellow">Activa</span></td>
+            </tr>
+            <tr>
+              <td><strong>Rodrigo Paz</strong></td>
+              <td><span style="font-family:var(--mono);font-size:12px">+54 9 3772 509876</span></td>
+              <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">2 equipos</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--text3)">08/03/26</span></td>
+              <td><span class="badge badge-blue">Activa</span></td>
+            </tr>
+            <tr>
+              <td><strong>Valeria Torres</strong></td>
+              <td><span style="font-family:var(--mono);font-size:12px">+54 9 3772 623451</span></td>
+              <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">1 equipo</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--text3)">08/03/26</span></td>
+              <td><span class="badge badge-orange">Activa</span></td>
+            </tr>
+            <tr>
+              <td><strong>Pablo Ruiz</strong></td>
+              <td><span style="font-family:var(--mono);font-size:12px">+54 9 3772 788002</span></td>
+              <td><span style="font-family:var(--mono);font-size:12px;color:var(--accent)">3 equipos</span></td>
+              <td><span style="font-family:var(--mono);font-size:11px;color:var(--text3)">09/03/26</span></td>
+              <td><span class="badge badge-green">✓ Listo</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ ESTADÍSTICAS ═══ -->
+    <div class="page" id="page-stats">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Ingresos marzo</div><div class="stat-value">$284k</div><div class="stat-sub"><span>+18%</span> vs feb</div></div>
+        <div class="stat-card blue"><div class="stat-label">Reparaciones</div><div class="stat-value">38</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Ventas accesorios</div><div class="stat-value">$67k</div></div>
+        <div class="stat-card"><div class="stat-label">Tasa garantía</div><div class="stat-value">4.2%</div><div class="stat-sub"><span>Bajo</span> — bueno</div></div>
+      </div>
+
+      <div class="two-cols">
+        <div class="card">
+          <div class="section-title" style="margin-bottom:14px;"><span class="dot"></span> Reparaciones más frecuentes</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span>Pantalla rota</span><span style="font-family:var(--mono);color:var(--accent)">32%</span></div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:32%;background:var(--accent);border-radius:3px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span>Batería / carga</span><span style="font-family:var(--mono);color:var(--blue)">24%</span></div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:24%;background:var(--blue);border-radius:3px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span>FRP / desbloqueo</span><span style="font-family:var(--mono);color:var(--yellow)">18%</span></div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:18%;background:var(--yellow);border-radius:3px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span>Pin de carga</span><span style="font-family:var(--mono);color:var(--orange)">15%</span></div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:15%;background:var(--orange);border-radius:3px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span>Software / Flash</span><span style="font-family:var(--mono);color:var(--text3)">11%</span></div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:11%;background:var(--border2);border-radius:3px;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:14px;"><span class="dot"></span> Dispositivos más reparados</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span>Samsung A series</span><span style="font-family:var(--mono);color:var(--accent)">41%</span></div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:41%;background:var(--accent);border-radius:3px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span>Motorola G / E</span><span style="font-family:var(--mono);color:var(--blue)">28%</span></div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:28%;background:var(--blue);border-radius:3px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span>Xiaomi / Redmi</span><span style="font-family:var(--mono);color:var(--yellow)">19%</span></div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:19%;background:var(--yellow);border-radius:3px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;"><span>iPhone</span><span style="font-family:var(--mono);color:var(--text3)">12%</span></div>
+              <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;"><div style="height:100%;width:12%;background:var(--border2);border-radius:3px;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const pages = {
+    'dashboard': 'Dashboard',
+    'ordenes': 'Órdenes de reparación',
+    'clientes': 'Clientes',
+    'kb': 'Base de conocimiento',
+    'herramientas': 'Herramientas',
+    'pos': 'Punto de venta',
+    'inventario': 'Inventario',
+    'stats': 'Estadísticas'
+  };
+
+  function showPage(id, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('pageTitle').textContent = pages[id] || id;
+  }
+
+  // POS Cart
+  let cart = [];
+
+  function addToCart(name, price) {
+    const existing = cart.find(i => i.name === name);
+    if (existing) { existing.qty++; }
+    else { cart.push({ name, price: parseInt(price), qty: 1 }); }
+    renderCart();
+  }
+
+  function renderCart() {
+    const el = document.getElementById('cartItems');
+    if (cart.length === 0) {
+      el.innerHTML = '<div style="color:var(--text3);font-family:var(--mono);font-size:12px;text-align:center;padding:20px 0;">Agregá productos →</div>';
+      document.getElementById('subtotal').textContent = '$0';
+      document.getElementById('discount').textContent = '−$0';
+      document.getElementById('total').textContent = '$0';
+      return;
+    }
+    el.innerHTML = cart.map(i => `
+      <div class="cart-item">
+        <div class="cart-item-name">${i.name}</div>
+        <div class="cart-item-qty">x${i.qty}</div>
+        <div class="cart-item-price">$${(i.price * i.qty).toLocaleString('es-AR')}</div>
+      </div>
+    `).join('');
+    const sub = cart.reduce((a, i) => a + i.price * i.qty, 0);
+    const disc = Math.round(sub * 0.05);
+    document.getElementById('subtotal').textContent = '$' + sub.toLocaleString('es-AR');
+    document.getElementById('discount').textContent = '−$' + disc.toLocaleString('es-AR');
+    document.getElementById('total').textContent = '$' + (sub - disc).toLocaleString('es-AR');
+  }
+
+  function clearCart() { cart = []; renderCart(); }
+  function processSale() {
+    if (cart.length === 0) return;
+    alert('✅ Venta procesada correctamente');
+    clearCart();
+  }
+
+  // AI Search (simulation)
+  function aiSearch() {
+    const q = document.getElementById('aiInput').value.trim();
+    if (!q) return;
+    const el = document.getElementById('aiResult');
+    el.style.display = 'block';
+    el.textContent = '⟳ Buscando en base de conocimiento...';
+    setTimeout(() => {
+      if (q.toLowerCase().includes('a12') || q.toLowerCase().includes('frp')) {
+        el.textContent = '✦ 2 métodos encontrados · Samsung A12 FRP · Relevancia: 94%  →  Ver resultados';
+      } else if (q.toLowerCase().includes('redmi') || q.toLowerCase().includes('flash')) {
+        el.textContent = '✦ 1 método encontrado · Xiaomi Redmi Flash · Relevancia: 87%  →  Ver resultados';
+      } else {
+        el.textContent = '✦ No se encontraron métodos exactos. Sugerencia: agregá este caso cuando lo resuelvas.';
+        el.style.color = 'var(--text3)';
+      }
+    }, 900);
+  }
+
+  document.getElementById('aiInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') aiSearch();
+  });
+
+  // filter chips
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      this.closest('.kb-filters, div').querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

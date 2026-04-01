@@ -1,0 +1,60 @@
+TASK.MD
+Tareas Pendientes
+ Corrección de Dashboard (500 Error)
+ Implementación de Fotos en Órdenes
+ Buscador por Nombre/IMEI/Modelo
+ Configuración de Taller (Nombre, Mensajes WA)
+ Diagnóstico por IA (Conexión con Base de Conocimientos)
+ Portal de Cliente (Página de Seguimiento Pública)
+ Autenticación con Google & Modo Demo
+ Preparación para Despliegue en Render (App Name: kbmi-taller)
+ Subida a Internet (Finalización)
+WALKTHROUGH.MD
+Walkthrough: Dynamic Dashboard & Photo Capture
+The application now features a fully functional real-time dashboard and the ability to capture equipment photos during order registration.
+
+Key Changes
+1. Dynamic Dashboard & Orders
+Dashboard: Now calculates live statistics (Active, Ready, Delayed) and shows a revenue projection based on real database records.
+Orders List: Fetches all orders from the API and supports filtering by status.
+2. Photo Capture Feature
+Step-by-step Registration: Added a dedicated "Fotos" step in the NewOrderModal.
+Image Upload: Photos are uploaded to the backend and stored in backend/uploads.
+Database Integration: Order records now store the list of filenames for future reference.
+Verification Results
+Backend API
+POST /uploads/: Successfully handles multiple image uploads.
+GET /ordenes/: Returns complete order objects including related client/equipment data and photo paths.
+Frontend UI
+Dashboard: Displays actual counts of orders in the database.
+New Order Flow: Now includes 5 steps (Client -> Equipment -> Checklist -> Photos -> Signature).
+3. Gestión de Estados y Notas Técnicas
+Detalle de Orden: Al hacer clic en una orden en la lista, se abre un modal con toda la información.
+Estados Avanzados: Ahora puedes marcar órdenes como "Falta repuesto", "No reparable", etc.
+Comentarios Técnicos: Campo para anotar diagnósticos detallados o motivos de demora.
+Cálculo de Ganancia: Al ingresar el costo del repuesto, el sistema te muestra la ganancia neta de esa reparación.
+4. Buscador Global y WhatsApp
+Buscador Inteligente: Escribe en la barra superior un nombre, IMEI o modelo y verás los resultados filtrados al instante.
+Notificaciones por WhatsApp:
+Botón Enviar Recibo: Manda el link del comprobante digital al cliente.
+Botón Notificar Listo: Se activa cuando la orden está en estado "Listo", redactando un mensaje automático para avisar al cliente que ya puede retirar su equipo.
+5. Personalización del Taller (Settings)
+Panel de Control: Cambia el nombre de tu negocio, dirección y teléfono desde la nueva sección de "Configuración".
+Mensajes Dinámicos: Configura plantillas personalizadas para los mensajes de WhatsApp que envías a tus clientes.
+Marca en Comprobantes: Todos los PDF y recibos digitales se actualizan automáticamente con tu información corporativa.
+6. Diagnóstico por IA (Stage 3)
+FixLab IA Suggestions: Al ver los detalles de una orden, el sistema analiza el problema reportado (ej: "no enciende") y busca automáticamente en la base de conocimientos soluciones similares.
+Sugerencias Inteligentes: Muestra el porcentaje de similitud, pasos de reparación y precios estimados sugeridos por la base de datos de conocimientos previamente cargada.
+7. Portal de Seguimiento Público (Stage 4)
+Link para el Cliente: Nuevo botón "Link Cliente" en el detalle de la orden que genera un enlace único y seguro de seguimiento.
+Página de Estado Premium: Página pública (/status/[token]) diseñada para que el cliente vea el progreso de su equipo en tiempo real con una línea de tiempo elegante, sin necesidad de loguearse.
+Actualización en Vivo: El portal se actualiza automáticamente cuando el técnico cambia el estado de la reparación en el dashboard interno.
+8. Autenticación y Modo Demo (Stage 5)
+Login con Google: Acceso seguro para el administrador (maxireloco94@gmail.com) con permisos totales sobre sus datos reales.
+Modo Invitado (Demo): Botón dedicado para que visitantes (otros servicios técnicos) puedan probar el sistema en un entorno aislado (Tenant Demo) sin afectar tu información privada.
+Protección de Rutas: Todas las secciones críticas (/dashboard, /pos, /config) están ahora protegidas y requieren inicio de sesión.
+9. Preparación para Render (Blueprint)
+Infraestructura como Código: He creado un archivo render.yaml en la raíz que define automáticamente el servidor de aplicaciones (FastAPI) y el frontend (Next.js) para que se desplieguen como kbmi-taller.
+Variables de Producción: El sistema ahora detecta automáticamente si está en Render o Local para conectar la API correctamente.
+Media (Recorrido)
+Puedes ver la nueva pantalla de login premium al iniciar la aplicación. Los botones de Google e Invitado están listos para la acción.

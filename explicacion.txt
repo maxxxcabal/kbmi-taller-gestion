@@ -1,0 +1,74 @@
+Soy desarrollador. Voy a construir un sistema de gestión para talleres de reparación de celulares llamado FixLab, con visión SaaS multi-tenant. Ya tengo el diseño visual definido en un HTML prototipo que te adjunto como referencia exacta.
+Stack definido:
+
+Frontend: Next.js 15 (App Router, Server Components, server actions donde aplique)
+Backend: FastAPI (Python 3.12), estructura modular por dominio
+DB: PostgreSQL con Supabase (auth nativo, Row Level Security para multi-tenant, storage para fotos)
+Búsqueda semántica: pgvector (extensión Postgres), embeddings con sentence-transformers modelo paraphrase-multilingual-MiniLM-L12-v2
+ORM: SQLAlchemy 2.0 async + Alembic para migraciones
+Validación: Pydantic v2
+Auth: Supabase Auth (JWT), middleware Next.js para proteger rutas
+Hosting: Railway (FastAPI como servicio separado) + Vercel (Next.js)
+
+
+Arquitectura general:
+El frontend Next.js consume la FastAPI via fetch en Server Components (no client-side fetch salvo excepciones). Las rutas API de Next.js (/api/*) NO se usan — todo pasa por FastAPI. El token JWT de Supabase se pasa en cada request como Bearer token. FastAPI valifica el JWT contra Supabase en un dependency de autenticación reutilizable.
+FastAPI estructura por dominio:
+app/
+  routers/
+    clientes.py
+    equipos.py
+    ordenes.py
+    conocimiento.py
+    inventario.py
+    ventas.py
+  models/        # SQLAlchemy models
+  schemas/       # Pydantic schemas (request/response)
+  services/      # lógica de negocio separada de los routers
+  deps.py        # dependencias compartidas (get_db, get_current_user)
+  main.py
+Next.js estructura App Router:
+app/
+  (auth)/login/
+  (dashboard)/
+    layout.tsx       # sidebar + topbar compartido
+    page.tsx         # dashboard
+    ordenes/
+    clientes/
+    conocimiento/
+    inventario/
+    ventas/
+    herramientas/
+  lib/
+    api.ts           # fetch wrapper con auth header
+    types.ts         # tipos TypeScript generados o manuales
+
+Schema PostgreSQL — MVP Fase 1:
+Tablas principales: tenants, users, clientes, equipos, ordenes, orden_estados_log, metodos_conocimiento, metodos_embeddings (vector), herramientas, productos, ventas, venta_items, caja_diaria.
+Row Level Security activo en todas las tablas usando tenant_id. Cada query en FastAPI recibe el tenant_id del JWT y Postgres lo filtra automáticamente via RLS policy.
+metodos_embeddings usa columna tipo vector(384) (dimensión del modelo MiniLM). Índice ivfflat para búsqueda ANN.
+
+Flujos clave a implementar:
+
+Nueva orden: Cliente seleccionado o creado inline → equipo vinculado o nuevo → checklist de diagnóstico físico (campos booleanos: pantalla, touch, carga, audio, wifi, etc.) → fotos subidas a Supabase Storage → orden creada con estado ingresado → log de cambio de estado en orden_estados_log.
+Búsqueda semántica de métodos: Usuario escribe texto libre (ej: "samsung a12 frp binario 5") → Next.js manda a FastAPI /conocimiento/buscar → servicio genera embedding del query con sentence-transformers → query pgvector con <-> (L2) o <=> (cosine) sobre metodos_embeddings → retorna top-5 métodos con score de similitud → se muestran ordenados por relevancia.
+Guardar método al cerrar orden: Al marcar orden como listo, modal opcional "¿Guardar método utilizado?" → si confirma, crea registro en metodos_conocimiento → background job (FastAPI BackgroundTasks) genera el embedding y lo inserta en metodos_embeddings.
+Punto de venta: Selección de productos → carrito en estado local React → POST a /ventas/ con items → FastAPI descuenta stock en productos, crea venta + venta_items, actualiza caja_diaria del día (upsert). Todo en una transacción Postgres.
+Multi-tenant (base desde día 1): Cada request autenticado extrae tenant_id del JWT claim. get_current_user dependency en FastAPI lo resuelve y lo inyecta en todos los servicios. RLS en Postgres como segunda capa de seguridad.
+
+
+Fase 2 — preparar estructura pero no implementar aún:
+
+ML de sugerencia de precio: columna precio_sugerido nullable en ordenes, servicio ml/precio.py con scikit-learn (regresión, features: marca + modelo + tipo_problema + historial)
+WhatsApp (Baileys via microservicio Node.js separado que FastAPI llama via HTTP interno)
+QR de seguimiento: ruta pública Next.js /seguimiento/[token] sin auth, token firmado en la orden
+
+
+Quiero que empieces por:
+
+Schema SQL completo con todas las tablas, RLS policies, índice pgvector
+Estructura de carpetas completa de ambos proyectos
+deps.py de FastAPI con el dependency de auth contra Supabase JWT
+Modelo SQLAlchemy + schema Pydantic para clientes y ordenes como ejemplo del patrón a seguir en el resto
+
+
