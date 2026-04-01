@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { X, User, Smartphone, ClipboardList, PenTool, Camera, Trash2, DollarSign } from 'lucide-react';
 
 import { useRouter } from 'next/navigation';
@@ -41,6 +41,14 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
     precio_estimado: 0,
     sena: 0
   });
+
+  const handlePinSave = useCallback((data: string) => {
+    setFormData(prev => ({ ...prev, equipo_pin: data }));
+  }, []);
+
+  const handleSignatureSave = useCallback((data: string) => {
+    setFormData(prev => ({ ...prev, signature_data: data }));
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -230,13 +238,12 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
                   value={formData.equipo_pin.startsWith('data:image') ? '' : formData.equipo_pin}
                   onChange={e => setFormData({...formData, equipo_pin: e.target.value})}
                 />
-                <div className="bg-white border border-[var(--border2)] rounded-xl relative overflow-hidden h-32">
-                   <SignaturePad 
-                     onSave={(data) => setFormData({ ...formData, equipo_pin: data })}
-                     onClear={() => setFormData({ ...formData, equipo_pin: '' })}
-                   />
-                </div>
-                <p className="text-[9px] text-[var(--text3)] mt-1.5 font-mono uppercase tracking-wider italic">Dibuja el patrón o escribe el PIN arriba</p>
+                <SignaturePad 
+                   onSave={handlePinSave}
+                   onClear={() => setFormData({ ...formData, equipo_pin: '' })}
+                   height="120px"
+                />
+                <p className="text-[9px] text-[var(--text3)] mt-1.5 font-mono uppercase tracking-wider italic text-center">Dibuja el patrón o escribe el PIN arriba</p>
               </div>
               <div>
                 <label className="block text-[11px] font-mono text-[var(--text3)] mb-1.5 uppercase tracking-wider">Falla / Problema</label>
@@ -346,10 +353,11 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
                 <PenTool size={14} /> Firma de Conformidad
               </div>
               <SignaturePad 
-                onSave={(data) => setFormData({ ...formData, signature_data: data })}
-                onClear={() => setFormData({ ...formData, signature_data: '' })}
+                onSave={handleSignatureSave}
+                onClear={() => setFormData(prev => ({ ...prev, signature_data: '' }))}
+                height="160px"
               />
-              <p className="text-[9px] text-[var(--text3)] leading-tight italic">
+              <p className="text-[9px] text-[var(--text3)] leading-tight italic text-center">
                  Al firmar, el cliente acepta los términos y condiciones del servicio de {config?.nombre_taller || 'KBMI Reparaciones'}.
               </p>
             </div>

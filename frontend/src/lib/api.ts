@@ -7,17 +7,31 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const userEmail = session?.user?.email || '';
   
   const url = `${API_BASE_URL}${endpoint}`;
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-User-Email': userEmail,
-      ...options.headers,
-    },
-  });
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(error.detail || 'API Error');
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Email': userEmail,
+        ...options.headers,
+      },
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(error.detail || 'API Error');
+    }
+    return response.json();
+  } catch (err: any) {
+    console.error("API Fetch Error:", {
+      url,
+      method: options.method || 'GET',
+      error: err.message,
+      stack: err.stack
+    });
+    
+    if (err.message === 'Failed to fetch') {
+      throw new Error("Error de conexión (Failed to fetch). Verifica que el servidor esté activo y que no haya problemas de red.");
+    }
+    throw err;
   }
-  return response.json();
 }
