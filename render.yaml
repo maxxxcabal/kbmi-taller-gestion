@@ -3,7 +3,7 @@ services:
     name: kbmi-taller-backend
     env: python
     plan: free
-    buildCommand: pip install -r backend/requirements.txt && cd backend && PYTHONPATH=. python update_schema.py
+    buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && PYTHONPATH=. uvicorn app.main:app --host 0.0.0.0 --port 10000
     envVars:
       - key: DATABASE_URL
