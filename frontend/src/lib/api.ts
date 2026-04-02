@@ -21,11 +21,19 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const session = await getSession();
   const userEmail = session?.user?.email || '';
   
-  // Ensure endpoint starts with / and ends with / to avoid redirects
+  // Ensure endpoint starts with /
   let path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  if (!path.includes('?') && !path.endsWith('/')) {
+  
+  // Logic to add trailing slash ONLY for base resources, not for specific IDs/UUIDs
+  // This prevents 404s on routes like /ordenes/{id}
+  const isBaseResource = ['/ordenes', '/clientes', '/config', '/auth/me', '/kb', '/stats'].some(res => 
+    path === res || path === `${res}/`
+  );
+
+  if (isBaseResource && !path.endsWith('/')) {
     path = `${path}/`;
   }
+  
   const url = `${API_BASE_URL}${path}`;
 
   try {
