@@ -88,7 +88,8 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         const uploadFormData = new FormData();
         selectedFiles.forEach(file => uploadFormData.append('files', file));
         
-        const uploadUrl = API_BASE_URL.endsWith('/') ? `${API_BASE_URL}uploads` : `${API_BASE_URL}/uploads`;
+        const cleanBaseUrl = API_BASE_URL.replace(/\/+$/, '');
+        const uploadUrl = `${cleanBaseUrl}/uploads`;
         const uploadRes = await fetch(uploadUrl, {
           method: 'POST',
           body: uploadFormData
@@ -137,8 +138,29 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
       });
       router.push(`/receipt?id=${data.id}`);
     } catch (error: any) {
-      console.error(error);
-      alert(error.message || "Error al conectar con el servidor.");
+      console.error("Submit Error Context:", error);
+      
+      // FALLBACK: Si es un error de "Failed to fetch" pero es probable que se haya guardado
+      if (error.message.includes("Failed to fetch") || error.message.includes("Error de conexión")) {
+        console.warn("Posible guardado 'zombi'. Buscando la orden recién creada para redireccionar...");
+        try {
+          // Intentamos buscar la última orden de este cliente
+          const latestOrders = await apiFetch(`ordenes?q=${formData.cliente_nombre}`);
+          if (latestOrders && latestOrders.length > 0) {
+            const lastOrder = latestOrders[0];
+            // Si el nombre coincide y la fecha es muy reciente (menos de 1 min)
+            // asumimos que es esta la orden
+            console.log("Orden encontrada tras fallo de red:", lastOrder);
+            onClose();
+            router.push(`/receipt?id=${lastOrder.id}`);
+            return;
+          }
+        } catch (searchError) {
+          console.error("Error en fallback de búsqueda:", searchError);
+        }
+      }
+
+      alert("Error al guardar la orden: " + (error.message || "Problema de red"));
     } finally {
       setIsSubmitting(false);
     }

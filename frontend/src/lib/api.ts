@@ -25,9 +25,8 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
    * Final URL standardization: Clean paths only (strictly no trailing slashes).
    * This prevents 307 redirects that lose CORS headers on Render.
    */
-  const cleanEndpoint = endpoint.replace(/\/+$/, '');
-  const path = cleanEndpoint.startsWith('/') ? cleanEndpoint : `/${cleanEndpoint}`;
-  const url = `${API_BASE_URL}${path}`;
+  const cleanEndpoint = endpoint.replace(/\/+$/, '').replace(/^\//, '');
+  const url = `${API_BASE_URL.replace(/\/+$/, '')}/${cleanEndpoint}`;
 
   try {
     const response = await fetch(url, {
