@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { apiFetch } from "@/lib/api";
 import { Loader2, TrendingUp, AlertCircle, CheckCircle2, Clock, ShieldAlert } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -20,7 +20,7 @@ interface Orden {
 
 import { useSearchParams } from "next/navigation";
 
-export default function Dashboard() {
+function Dashboard() {
   const [ordenes, setOrdenes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
@@ -207,5 +207,17 @@ function StatCard({ label, value, sub, color }: { label: string, value: string |
         {sub}
       </div>
     </div>
+  );
+}
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 opacity-50">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--accent)]" />
+        <div className="text-sm font-mono uppercase tracking-[2px]">Cargando Dashboard...</div>
+      </div>
+    }>
+      <Dashboard />
+    </Suspense>
   );
 }
