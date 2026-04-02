@@ -18,6 +18,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
   
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<string>('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [config, setConfig] = useState<any>(null);
@@ -80,6 +81,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setSubmissionStatus("Subiendo imágenes...");
     try {
       let finalFilenames = [];
 
@@ -99,6 +101,8 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         const uploadData = await uploadRes.json();
         finalFilenames = uploadData.filenames;
       }
+
+      setSubmissionStatus("Guardando orden...");
 
       // 2. Guardar orden con los nombres de archivo
       const orderPayload = {
@@ -142,18 +146,19 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
       
       // FORCED FALLBACK: If it's a network/CORS error, try to recover
       if (error.message.includes("Failed to fetch") || error.message.includes("Error de conexión")) {
+        setSubmissionStatus("Detectado problema de red. Verificando si se guardó...");
         console.warn("Posible guardado 'zombi' detectado. Intentando rescate de flujo...");
         
-        // Esperamos 1.5s para que Render procese la DB
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Esperamos 2s para que Render procese la DB
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         try {
           // Buscamos la última orden de este cliente
           const latestOrders = await apiFetch(`ordenes?q=${formData.cliente_nombre}`);
           if (latestOrders && latestOrders.length > 0) {
             const lastOrder = latestOrders[0];
-            // Verificamos por nombre para estar seguros
             if (lastOrder.cliente?.nombre === formData.cliente_nombre) {
+              setSubmissionStatus("¡Orden encontrada! Redireccionando...");
               console.log("Orden rescatada con éxito:", lastOrder);
               onClose();
               router.push(`/receipt?id=${lastOrder.id}`);
@@ -165,8 +170,9 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         }
       }
 
+      setSubmissionStatus('');
       // Si llegamos aquí sin redireccionar, mostramos el error original
-      if (!isSubmitting) return; // Ya se redireccionó
+      if (!isSubmitting) return; 
       alert("No se pudo completar el registro: " + (error.message || "Problema de red"));
     } finally {
       setIsSubmitting(false);
@@ -175,6 +181,13 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in transition-all p-4">
+        {isSubmitting && (
+          <div className="absolute inset-0 z-[60] bg-black/60 backdrop-blur-md flex flex-col items-center justify-center text-white gap-4">
+            <div className="w-12 h-12 border-4 border-[var(--accent)] border-t-transparent rounded-full animate-spin shadow-[0_0_20px_var(--accent)]" />
+            <div className="text-sm font-bold animate-pulse text-[var(--accent)]">{submissionStatus || 'Guardando Orden...'}</div>
+            <div className="text-[10px] font-mono opacity-50 uppercase tracking-widest px-10 text-center">No cierres esta ventana mientras procesamos la información</div>
+          </div>
+        )}
       <div className="bg-[var(--sidebar)] border border-[var(--border)] w-full max-w-[500px] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
         
         {/* Header */}
