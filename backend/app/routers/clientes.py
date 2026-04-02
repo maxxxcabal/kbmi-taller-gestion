@@ -9,6 +9,7 @@ from app.services.cliente_service import ClienteService
 router = APIRouter(prefix="/clientes", tags=["clientes"])
 
 @router.post("", response_model=ClienteResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=ClienteResponse, status_code=status.HTTP_201_CREATED)
 async def create_cliente(
     cliente_in: ClienteCreate,
     db: AsyncSession = Depends(get_db),
@@ -28,6 +29,7 @@ async def create_cliente(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("", response_model=List[ClienteResponse])
+@router.get("/", response_model=List[ClienteResponse])
 async def read_clientes(
     skip: int = 0,
     limit: int = 100,
