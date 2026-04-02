@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -25,6 +26,9 @@ interface SidebarProps {
 export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname() || "/";
   const [config, setConfig] = useState<any>(null);
+
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.email === 'maxireloco94@gmail.com';
 
   useEffect(() => {
     apiFetch('/config/').then(setConfig).catch(console.error);
@@ -86,34 +90,53 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         <Link href="/kb" className={getNavItemClass("/kb")}>
           <Brain size={16} className="text-center w-4" /> Base Conocimiento
         </Link>
-        <Link href="/settings" className={getNavItemClass("/settings")}>
-          <Settings size={16} className="text-center w-4" /> Configuración
-        </Link>
+        {isAdmin ? (
+          <Link href="/settings" className={getNavItemClass("/settings")}>
+            <Settings size={16} className="text-center w-4" /> Configuración
+          </Link>
+        ) : (
+          <div className="flex items-center gap-[9px] px-2 py-[7px] text-[13px] font-semibold text-[var(--text3)] opacity-40 cursor-not-allowed">
+            <Settings size={16} className="text-center w-4" /> Configuración (🔒)
+          </div>
+        )}
       </div>
 
       <div className="p-2.5 pt-3.5 pb-1">
         <div className="text-[9px] font-mono text-[var(--text3)] uppercase tracking-[1.5px] px-2 mb-1">Negocio</div>
-        <Link href="/pos" className={getNavItemClass("/pos")}>
-          <ShoppingCart size={16} className="text-center w-4" /> Punto de Venta
-        </Link>
-        <Link href="/inventario" className={getNavItemClass("/inventario")}>
-          <Package size={16} className="text-center w-4" /> Inventario
-          <span className="ml-auto bg-[var(--accent)] text-[var(--bg)] text-[9px] font-mono font-bold px-[5px] py-[1px] rounded-[10px]">3</span>
-        </Link>
-        <Link href="/stats" className={getNavItemClass("/stats")}>
-          <BarChart size={16} className="text-center w-4" /> Estadísticas
-        </Link>
+        {isAdmin ? (
+          <>
+            <Link href="/pos" className={getNavItemClass("/pos")}>
+              <ShoppingCart size={16} className="text-center w-4" /> Punto de Venta
+            </Link>
+            <Link href="/inventario" className={getNavItemClass("/inventario")}>
+              <Package size={16} className="text-center w-4" /> Inventario
+              <span className="ml-auto bg-[var(--accent)] text-[var(--bg)] text-[9px] font-mono font-bold px-[5px] py-[1px] rounded-[10px]">3</span>
+            </Link>
+            <Link href="/stats" className={getNavItemClass("/stats")}>
+              <BarChart size={16} className="text-center w-4" /> Estadísticas
+            </Link>
+          </>
+        ) : (
+           <div className="px-2 py-4 bg-[var(--bg2)] rounded-lg border border-[var(--border)] text-[10px] font-mono text-[var(--text3)] leading-tight text-center">
+             Módulos de Negocio bloqueados en <span className="text-[var(--accent)]">MODO DEMO</span>
+           </div>
+        )}
       </div>
 
       {/* Footer User */}
       <div className="mt-auto p-2.5 py-3 border-t border-[var(--border)]">
-        <div className="flex items-center gap-[9px] p-2 rounded-lg cursor-pointer transition-colors hover:bg-[var(--card)]">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)] flex items-center justify-center text-[11px] font-bold text-[var(--bg)] shrink-0">
-            MA
+        <div 
+          onClick={() => confirm("¿Cerrar sesión?") && signOut()}
+          className="flex items-center gap-[9px] p-2 rounded-lg cursor-pointer transition-colors hover:bg-[var(--card)]"
+        >
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-[var(--bg)] shrink-0 ${isAdmin ? 'bg-gradient-to-br from-[var(--accent)] to-[var(--accent2)]' : 'bg-slate-600'}`}>
+            {session?.user?.name?.charAt(0) || 'U'}
           </div>
-          <div>
-            <div className="text-xs font-bold text-[var(--text)]">Max</div>
-            <div className="text-[10px] font-mono text-[var(--text3)]">Admin · Técnico</div>
+          <div className="flex-1 overflow-hidden">
+            <div className="text-xs font-bold text-[var(--text)] truncate">{session?.user?.name || 'Usuario'}</div>
+            <div className={`text-[10px] font-mono uppercase tracking-tighter ${isAdmin ? 'text-[var(--accent)]' : 'text-[var(--text3)]'}`}>
+              {isAdmin ? 'Admin · Dueño' : 'Modo Demo'}
+            </div>
           </div>
         </div>
       </div>

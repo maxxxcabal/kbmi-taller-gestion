@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
-import { Loader2, TrendingUp, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { Loader2, TrendingUp, AlertCircle, CheckCircle2, Clock, ShieldAlert } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useSession } from "next-auth/react";
 import { es } from "date-fns/locale";
 
 interface Orden {
@@ -22,6 +23,8 @@ import { useSearchParams } from "next/navigation";
 export default function Dashboard() {
   const [ordenes, setOrdenes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.email === 'maxireloco94@gmail.com';
   const searchParams = useSearchParams();
   const query = searchParams.get('q');
 
@@ -69,6 +72,18 @@ export default function Dashboard() {
   return (
     <div className="animate-in fade-in flex flex-col gap-6">
       
+      {!isAdmin && (
+        <div className="bg-[var(--accent-dim)] border border-[rgba(0,184,141,0.2)] rounded-xl p-4 flex items-center gap-4 animate-pulse">
+           <div className="w-10 h-10 rounded-full bg-[var(--bg)] flex items-center justify-center text-[var(--accent)] shrink-0 shadow-lg">
+             <ShieldAlert size={20} />
+           </div>
+           <div className="flex-1">
+             <h4 className="text-xs font-bold text-[var(--accent)] uppercase tracking-wider">Modo Demostración Activo</h4>
+             <p className="text-[10px] text-[var(--text2)] font-mono leading-tight">Estás visualizando el sistema en modo lectura. Solo el administrador principal puede realizar cambios en las órdenes y configuraciones.</p>
+           </div>
+        </div>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <StatCard 

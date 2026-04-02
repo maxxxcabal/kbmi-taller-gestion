@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { X, Save, Clock, AlertCircle, CheckCircle2, Package, Smartphone, User, MessageSquare, DollarSign, Share2, MessageCircle, Link2, Sparkles, Trash2 } from 'lucide-react';
+import { X, Save, Clock, AlertCircle, CheckCircle2, Package, Smartphone, User, MessageSquare, DollarSign, Share2, MessageCircle, Link2, Sparkles, Trash2, Lock } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useSession } from "next-auth/react";
 
 interface OrderDetailModalProps {
   orderId: string | number | null;
@@ -32,7 +33,10 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
   const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
   const [copying, setCopying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.email === 'maxireloco94@gmail.com';
   const [editData, setEditData] = useState({
     estado: '',
     comentarios: '',
@@ -163,32 +167,40 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
             <h3 className="text-sm font-extrabold text-[var(--text)]">Detalles de la Orden</h3>
           </div>
           <div className="flex items-center gap-2">
-            {!showDeleteConfirm ? (
-              <button 
-                onClick={() => setShowDeleteConfirm(true)}
-                className="p-2 hover:bg-red-500/10 rounded-full text-[var(--text3)] hover:text-red-500 transition-colors mr-1"
-                title="Eliminar Orden"
-              >
-                <Trash2 size={18} />
-              </button>
-            ) : (
-              <div className="flex items-center gap-2 bg-red-500/10 p-1 rounded-lg border border-red-500/20 animate-in fade-in slide-in-from-right-4">
-                <span className="text-[10px] font-bold text-red-500 px-2 uppercase tracking-tighter">¿Borrar?</span>
+            <div className="flex items-center bg-[var(--bg2)] border border-[var(--border)] rounded-[14px] p-2 pr-4 relative">
+              {isAdmin ? (
                 <button 
-                  onClick={handleDelete}
-                  disabled={saving}
-                  className="px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-md hover:bg-red-600 transition-colors"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="p-2.5 rounded-xl hover:bg-red-500/10 text-[var(--text3)] hover:text-red-500 transition-all group relative mr-2"
+                  title="Eliminar orden"
                 >
-                  SÍ
+                  <Trash2 size={18} />
                 </button>
-                <button 
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="px-2 py-1 text-[var(--text3)] text-[10px] font-bold hover:text-[var(--text)] transition-colors"
-                >
-                  NO
-                </button>
-              </div>
-            )}
+              ) : (
+                <div className="p-2.5 opacity-20 cursor-not-allowed group relative mr-2" title="Solo lectura (Modo Demo)">
+                  <Lock size={16} />
+                </div>
+              )}
+              
+              {showDeleteConfirm && (
+                <div className="flex items-center gap-2 bg-red-500/10 p-1 rounded-lg border border-red-500/20 animate-in fade-in slide-in-from-right-4">
+                  <span className="text-[10px] font-bold text-red-500 px-2 uppercase tracking-tighter">¿Borrar?</span>
+                  <button 
+                    onClick={handleDelete}
+                    disabled={saving}
+                    className="px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-md hover:bg-red-600 transition-colors"
+                  >
+                    SÍ
+                  </button>
+                  <button 
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="px-2 py-1 text-[var(--text3)] text-[10px] font-bold hover:text-[var(--text)] transition-colors"
+                  >
+                    NO
+                  </button>
+                </div>
+              )}
+            </div>
             <button onClick={onClose} className="p-2 hover:bg-[var(--card)] rounded-full text-[var(--text3)] transition-colors">
               <X size={18} />
             </button>
@@ -269,7 +281,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
                       {ESTADOS.map((est) => (
                         <button
                           key={est.id}
-                          onClick={() => setEditData({ ...editData, estado: est.id })}
+                          onClick={() => { setEditData({ ...editData, estado: est.id }); setIsEditing(true); }}
                           className={`flex items-center justify-between px-3 py-2 rounded-lg border text-[11px] font-bold transition-all ${
                             editData.estado === est.id
                               ? 'bg-[var(--accent-dim)] border-[var(--accent)] text-[var(--accent)]'
@@ -328,7 +340,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
                   className="w-full bg-[var(--bg2)] border border-[var(--border2)] rounded-lg p-3 text-xs text-[var(--text)] outline-none focus:border-[var(--accent)] transition-colors min-h-[100px] resize-none"
                   placeholder="Escribe aquí los detalles del diagnóstico, si falta algún repuesto o el motivo de la demora..."
                   value={editData.comentarios}
-                  onChange={(e) => setEditData({ ...editData, comentarios: e.target.value })}
+                  onChange={(e) => { setEditData({ ...editData, comentarios: e.target.value }); setIsEditing(true); }}
                 />
               </div>
 
@@ -368,7 +380,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
                       type="number" 
                       className="w-full bg-[var(--bg)] border border-[var(--border2)] rounded-lg pl-9 pr-3 py-2 text-sm text-[var(--text)] font-mono outline-none focus:border-[var(--accent)]"
                       value={editData.costo_repuesto}
-                      onChange={(e) => setEditData({ ...editData, costo_repuesto: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) => { setEditData({ ...editData, costo_repuesto: parseFloat(e.target.value) || 0 }); setIsEditing(true); }}
                     />
                   </div>
                 </div>
@@ -380,7 +392,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
                       type="number" 
                       className="w-full bg-[var(--bg)] border border-[var(--border2)] rounded-lg pl-9 pr-3 py-2 text-sm text-[var(--accent)] font-bold font-mono outline-none focus:border-[var(--accent)]"
                       value={editData.precio}
-                      onChange={(e) => setEditData({ ...editData, precio: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) => { setEditData({ ...editData, precio: parseFloat(e.target.value) || 0 }); setIsEditing(true); }}
                     />
                   </div>
                 </div>
@@ -424,18 +436,23 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
                </button>
              )}
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 relative">
              <button onClick={onClose} className="px-5 py-2 text-xs font-bold text-[var(--text2)] hover:text-[var(--text)] transition-colors">
                Cancelar
              </button>
              <button 
                onClick={handleSave}
-               disabled={saving}
+               disabled={saving || !isAdmin}
                className="bg-[var(--accent)] text-[var(--bg)] px-8 py-2 rounded-lg text-xs font-bold hover:bg-[#00ffca] transition-all shadow-lg flex items-center gap-2"
              >
                {saving ? <div className="w-4 h-4 border-2 border-[var(--bg)] border-t-transparent rounded-full animate-spin" /> : <Save size={16} />}
                Guardar Cambios
              </button>
+             {!isAdmin && isEditing && (
+               <div className="absolute inset-0 bg-[var(--bg)]/10 backdrop-blur-[1px] flex items-center justify-center rounded-xl cursor-not-allowed" title="No tienes permisos para guardar">
+                  <span className="bg-[var(--card)] px-3 py-1 rounded-full text-[10px] font-mono text-[var(--text3)] border border-[var(--border)]">ADMIN REQUERIDO</span>
+               </div>
+             )}
           </div>
         </div>
       </div>

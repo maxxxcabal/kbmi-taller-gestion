@@ -9,24 +9,13 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
     CredentialsProvider({
-      name: "Acceso",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        isOwner: { label: "Owner", type: "text" }
-      },
+      name: "Invitado",
+      credentials: {},
       async authorize(credentials) {
-        if (credentials?.isOwner === "true" && credentials?.email === "maxireloco94@gmail.com") {
-          return {
-            id: "owner-99",
-            name: "Maxi (Owner)",
-            email: "maxireloco94@gmail.com",
-            role: "admin"
-          };
-        }
-        // Modo Invitado: Simplemente devuelve un usuario demo si no hay credenciales
+        // Modo Invitado: Simplemente devuelve un usuario demo sin privilegios de escritura
         return {
           id: "guest",
-          name: "Invitado Demo",
+          name: "Invitado (Demo)",
           email: "guest@demo.com",
           role: "guest"
         };

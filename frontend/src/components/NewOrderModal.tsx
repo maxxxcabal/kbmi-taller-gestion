@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { X, User, Smartphone, ClipboardList, PenTool, Camera, Trash2, DollarSign } from 'lucide-react';
 
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { SignaturePad } from './SignaturePad';
 import { apiFetch, pingBackend, API_BASE_URL } from '@/lib/api';
 
@@ -18,6 +19,8 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
   
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.email === 'maxireloco94@gmail.com';
   const [submissionStatus, setSubmissionStatus] = useState<string>('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -423,13 +426,18 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
               Siguiente
             </button>
           ) : (
-            <button 
-              onClick={handleSubmit} 
-              disabled={isSubmitting || !formData.signature_data}
-              className={`bg-[var(--accent)] text-[var(--bg)] px-6 py-2 rounded-lg text-xs font-bold transition-all shadow-lg shadow-[var(--accent-dim)] ${isSubmitting || !formData.signature_data ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#00ffca]'}`}
-            >
-              {isSubmitting ? 'Guardando...' : 'Finalizar Registro'}
-            </button>
+            <div className="relative">
+              <button 
+                onClick={handleSubmit} 
+                disabled={isSubmitting || !formData.signature_data || !isAdmin}
+                className={`bg-[var(--accent)] text-[var(--bg)] px-6 py-2 rounded-lg text-xs font-bold transition-all shadow-lg shadow-[var(--accent-dim)] ${isSubmitting || !formData.signature_data || !isAdmin ? 'opacity-50 cursor-not-allowed font-mono' : 'hover:bg-[#00ffca]'}`}
+              >
+                {isSubmitting ? 'Guardando...' : isAdmin ? 'Finalizar Registro' : 'FINALIZAR (🔒 ADMIN)'}
+              </button>
+              {!isAdmin && (
+                <p className="absolute -bottom-4 right-0 text-[8px] font-mono text-[var(--text3)] uppercase">Solo lectura</p>
+              )}
+            </div>
           )}
         </div>
       </div>
