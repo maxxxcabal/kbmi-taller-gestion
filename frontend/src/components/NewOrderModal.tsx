@@ -165,6 +165,8 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         }
       }
 
+      // Si llegamos aquí sin redireccionar, mostramos el error original
+      if (!isSubmitting) return; // Ya se redireccionó
       alert("No se pudo completar el registro: " + (error.message || "Problema de red"));
     } finally {
       setIsSubmitting(false);
