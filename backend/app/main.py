@@ -33,7 +33,17 @@ app = FastAPI(
     title="FixLab API", 
     description="SaaS Multi-tenant backend para gestión de talleres",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    redirect_slashes=False
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"], 
+    allow_headers=["*"], 
+    expose_headers=["*"]
 )
 
 # Crear carpeta de uploads si no existe
@@ -43,14 +53,6 @@ if not os.path.exists(UPLOAD_DIR):
 
 # Servir archivos estáticos
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], # Abrir temporalmente para asegurar conectividad total en Render
-    allow_credentials=True,
-    allow_methods=["*"], 
-    allow_headers=["*"], 
-)
 
 # Registrando los routers
 app.include_router(auth.router)
@@ -63,3 +65,9 @@ app.include_router(config.router)
 @app.get("/")
 def read_root():
     return {"status": "ok", "message": "FixLab API is running! 🚀"}
+
+@app.get("/stats")
+def read_stats():
+    # Endpoint mínimo para evitar 404 en el dashboard frontend
+    return {"total_ordenes": 0, "activas": 0, "listas": 0}
+

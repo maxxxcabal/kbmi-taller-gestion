@@ -20,8 +20,11 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const session = await getSession();
   const userEmail = session?.user?.email || '';
   
-  // Ensure endpoint starts with /
-  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  // Ensure endpoint starts with / and ends with / to avoid redirects
+  let path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  if (!path.includes('?') && !path.endsWith('/')) {
+    path = `${path}/`;
+  }
   const url = `${API_BASE_URL}${path}`;
 
   try {
