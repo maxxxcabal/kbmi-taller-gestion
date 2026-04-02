@@ -9,6 +9,7 @@ from typing import List
 router = APIRouter(prefix="/conocimiento", tags=["conocimiento"])
 
 @router.post("", response_model=Metodo)
+@router.post("/", response_model=Metodo)
 async def add_metodo(
     obj_in: MetodoCreate,
     db: AsyncSession = Depends(get_db),
