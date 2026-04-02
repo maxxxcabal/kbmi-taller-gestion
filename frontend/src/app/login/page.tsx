@@ -45,7 +45,7 @@ export default function LoginPage() {
                 onClick={() => signIn('credentials', { 
                   email: 'maxireloco94@gmail.com', 
                   isOwner: 'true',
-                  callbackUrl: '/dashboard' 
+                  callbackUrl: '/' 
                 })}
                 className="w-full bg-[var(--accent)] hover:bg-[#00ffca] text-[var(--bg)] py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 font-bold text-sm transition-all shadow-[0_0_20px_rgba(0,229,176,0.2)] active:scale-[0.98] group"
               >
