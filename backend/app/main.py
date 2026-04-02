@@ -33,7 +33,8 @@ app = FastAPI(
     title="FixLab API", 
     description="SaaS Multi-tenant backend para gestión de talleres",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    redirect_slashes=False
 )
 
 @app.middleware("http")

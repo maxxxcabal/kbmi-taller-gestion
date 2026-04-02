@@ -16,7 +16,7 @@ from typing import List, Optional
 router = APIRouter(prefix="/ordenes", tags=["ordenes"])
 
 
-@router.post("/", response_model=OrdenSchema)
+@router.post("", response_model=OrdenSchema)
 async def create_new_order(
     obj_in: OrdenCreate,
     db: AsyncSession = Depends(get_db),
@@ -28,7 +28,7 @@ async def create_new_order(
     """
     return await orden_service.create_order(db=db, obj_in=obj_in, tenant_id=tenant_id)
 
-@router.get("/", response_model=List[OrdenSchema])
+@router.get("", response_model=List[OrdenSchema])
 async def read_ordenes(
     q: Optional[str] = None,
     db: AsyncSession = Depends(get_db),

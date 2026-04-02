@@ -10,7 +10,7 @@ UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
-@router.post("/")
+@router.post("")
 async def upload_files(files: List[UploadFile] = File(...)):
     uploaded_filenames = []
     for file in files:

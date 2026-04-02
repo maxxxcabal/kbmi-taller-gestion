@@ -8,7 +8,7 @@ from uuid import UUID
 
 router = APIRouter(prefix="/config", tags=["config"])
 
-@router.get("/", response_model=Configuracion)
+@router.get("", response_model=Configuracion)
 async def get_config(
     db: AsyncSession = Depends(get_db),
     tenant_id: UUID = Depends(get_current_tenant_id)
@@ -31,7 +31,7 @@ async def get_config(
     
     return config
 
-@router.patch("/", response_model=Configuracion)
+@router.patch("", response_model=Configuracion)
 async def update_config(
     obj_in: ConfiguracionUpdate, 
     db: AsyncSession = Depends(get_db),
