@@ -22,10 +22,11 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const userEmail = session?.user?.email || '';
   
   /**
-   * Final URL standardization: Clean paths only (no trailing slashes).
-   * FastAPI handles these natively and our new backend middleware fixes CORS for redirects.
+   * Final URL standardization: Clean paths only (strictly no trailing slashes).
+   * This prevents 307 redirects that lose CORS headers on Render.
    */
-  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const cleanEndpoint = endpoint.replace(/\/+$/, '');
+  const path = cleanEndpoint.startsWith('/') ? cleanEndpoint : `/${cleanEndpoint}`;
   const url = `${API_BASE_URL}${path}`;
 
   try {

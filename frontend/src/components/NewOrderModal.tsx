@@ -105,7 +105,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         fotos: JSON.stringify(finalFilenames)
       };
 
-      const data = await apiFetch('/ordenes/', {
+      const data = await apiFetch('/ordenes', {
         method: 'POST',
         body: JSON.stringify(orderPayload),
       });
