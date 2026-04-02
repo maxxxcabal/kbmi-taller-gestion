@@ -25,6 +25,7 @@ export default function OrdenesPage() {
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("Todas");
+  const [activeTab, setActiveTab] = useState<"activas" | "historial">("activas");
   const [selectedOrderId, setSelectedOrderId] = useState<string | number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const searchParams = useSearchParams();
@@ -112,13 +113,27 @@ export default function OrdenesPage() {
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-3.5">
-          <div className="text-sm font-extrabold flex items-center gap-2 text-[var(--text)]">
-            <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_8px_var(--accent)]" /> 
-            Todas las órdenes activas
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex bg-[var(--sidebar)] border border-[var(--border)] rounded-xl p-1">
+            <button 
+              onClick={() => { setActiveTab("activas"); setFilter("Todas"); }}
+              className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === "activas" ? 'bg-[var(--accent)] text-[var(--bg)] shadow-lg' : 'text-[var(--text3)] hover:text-[var(--text)]'}`}
+            >
+              Órdenes Activas
+            </button>
+            <button 
+              onClick={() => { setActiveTab("historial"); setFilter("Todas"); }}
+              className={`px-6 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === "historial" ? 'bg-[var(--accent)] text-[var(--bg)] shadow-lg' : 'text-[var(--text3)] hover:text-[var(--text)]'}`}
+            >
+              Historial Completo
+            </button>
           </div>
+
           <div className="flex gap-2">
-            {["Todas", "ingresado", "reparacion", "listo"].map((s) => (
+            {(activeTab === "activas" 
+              ? ["Todas", "ingresado", "reparacion", "listo"] 
+              : ["Todas", "entregado", "devuelto", "no_reparable"]
+            ).map((s) => (
               <button 
                 key={s}
                 onClick={() => setFilter(s)}
@@ -128,10 +143,15 @@ export default function OrdenesPage() {
                   : "border border-[var(--border)] bg-[var(--sidebar)] text-[var(--text2)] hover:bg-[var(--accent-dim)] hover:border-[rgba(0,184,141,0.3)] hover:text-[var(--accent)]"
                 }`}
               >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
+                {s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ')}
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="text-[10px] font-mono text-[var(--text3)] uppercase tracking-[2px] mb-3 flex items-center gap-2">
+          <div className="w-1 h-1 rounded-full bg-[var(--accent)]" />
+          {activeTab === "activas" ? "Reparaciones en taller" : "Registros históricos y entregados"}
         </div>
 
         <div className="bg-[var(--sidebar)] border border-[var(--border)] rounded-xl overflow-x-auto min-h-[400px]">
@@ -159,7 +179,11 @@ export default function OrdenesPage() {
               </thead>
               <tbody>
                 {ordenes
-                  .filter(o => filter === "Todas" || o.estado === filter)
+                  .filter(o => {
+                    const isHistorical = ["entregado", "devuelto", "no_reparable"].includes(o.estado);
+                    if (activeTab === "activas") return !isHistorical && (filter === "Todas" || o.estado === filter);
+                    return isHistorical && (filter === "Todas" || o.estado === filter);
+                  })
                   .map((order) => (
                     <tr 
                       key={order.id} 
