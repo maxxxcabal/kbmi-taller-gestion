@@ -140,27 +140,32 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
     } catch (error: any) {
       console.error("Submit Error Context:", error);
       
-      // FALLBACK: Si es un error de "Failed to fetch" pero es probable que se haya guardado
+      // FORCED FALLBACK: If it's a network/CORS error, try to recover
       if (error.message.includes("Failed to fetch") || error.message.includes("Error de conexión")) {
-        console.warn("Posible guardado 'zombi'. Buscando la orden recién creada para redireccionar...");
+        console.warn("Posible guardado 'zombi' detectado. Intentando rescate de flujo...");
+        
+        // Esperamos 1.5s para que Render procese la DB
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
         try {
-          // Intentamos buscar la última orden de este cliente
+          // Buscamos la última orden de este cliente
           const latestOrders = await apiFetch(`ordenes?q=${formData.cliente_nombre}`);
           if (latestOrders && latestOrders.length > 0) {
             const lastOrder = latestOrders[0];
-            // Si el nombre coincide y la fecha es muy reciente (menos de 1 min)
-            // asumimos que es esta la orden
-            console.log("Orden encontrada tras fallo de red:", lastOrder);
-            onClose();
-            router.push(`/receipt?id=${lastOrder.id}`);
-            return;
+            // Verificamos por nombre para estar seguros
+            if (lastOrder.cliente?.nombre === formData.cliente_nombre) {
+              console.log("Orden rescatada con éxito:", lastOrder);
+              onClose();
+              router.push(`/receipt?id=${lastOrder.id}`);
+              return;
+            }
           }
         } catch (searchError) {
-          console.error("Error en fallback de búsqueda:", searchError);
+          console.error("Error en rescate de flujo:", searchError);
         }
       }
 
-      alert("Error al guardar la orden: " + (error.message || "Problema de red"));
+      alert("No se pudo completar el registro: " + (error.message || "Problema de red"));
     } finally {
       setIsSubmitting(false);
     }

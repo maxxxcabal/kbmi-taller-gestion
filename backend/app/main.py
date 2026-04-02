@@ -37,6 +37,20 @@ app = FastAPI(
     redirect_slashes=False
 )
 
+@app.middleware("http")
+async def add_cors_headers(request, call_next):
+    if request.method == "OPTIONS":
+        from fastapi.responses import Response
+        response = Response()
+    else:
+        response = await call_next(request)
+    
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    response.headers["Access-Control-Expose-Headers"] = "*"
+    return response
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
