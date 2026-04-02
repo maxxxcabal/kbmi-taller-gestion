@@ -29,7 +29,7 @@ export default function Dashboard() {
     const fetchOrdenes = async () => {
       setLoading(true);
       try {
-        const url = query ? `/ordenes/?q=${encodeURIComponent(query)}` : "/ordenes/";
+        const url = query ? `/ordenes?q=${encodeURIComponent(query)}` : "/ordenes";
         const data = await apiFetch(url);
         setOrdenes(data);
       } catch (error) {

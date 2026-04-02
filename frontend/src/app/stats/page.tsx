@@ -11,7 +11,7 @@ export default function StatsPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const data = await apiFetch("/ordenes/");
+        const data = await apiFetch("/ordenes");
         setOrdenes(data);
       } catch (err) {
         console.error("Error fetching stats:", err);

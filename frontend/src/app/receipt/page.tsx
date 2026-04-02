@@ -23,7 +23,7 @@ export default function ReceiptPage() {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
         const [orderRes, configRes] = await Promise.all([
           fetch(`${baseUrl}/ordenes/${id}`),
-          fetch(`${baseUrl}/config/`)
+          fetch(`${baseUrl}/config`)
         ]);
         
         if (orderRes.ok) setOrder(await orderRes.json());

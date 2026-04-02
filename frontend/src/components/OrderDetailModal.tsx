@@ -109,6 +109,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
   };
 
   const handleDelete = async () => {
+    console.log("Delete button clicked for order:", orderId);
     if (!window.confirm("¿Estás seguro de que deseas eliminar esta orden? Esta acción no se puede deshacer.")) return;
     
     setSaving(true);

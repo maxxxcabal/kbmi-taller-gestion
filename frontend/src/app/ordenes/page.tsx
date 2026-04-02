@@ -33,7 +33,7 @@ export default function OrdenesPage() {
   const fetchOrdenes = async () => {
     setLoading(true);
     try {
-      const url = query ? `/ordenes/?q=${encodeURIComponent(query)}` : "/ordenes/";
+      const url = query ? `/ordenes?q=${encodeURIComponent(query)}` : "/ordenes";
       const data = await apiFetch(url);
       const formatted = data.map((o: any) => ({
         id: o.id,

@@ -88,7 +88,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         const uploadFormData = new FormData();
         selectedFiles.forEach(file => uploadFormData.append('files', file));
         
-        const uploadUrl = API_BASE_URL.endsWith('/') ? `${API_BASE_URL}uploads/` : `${API_BASE_URL}/uploads/`;
+        const uploadUrl = API_BASE_URL.endsWith('/') ? `${API_BASE_URL}uploads` : `${API_BASE_URL}/uploads`;
         const uploadRes = await fetch(uploadUrl, {
           method: 'POST',
           body: uploadFormData
@@ -105,7 +105,7 @@ export const NewOrderModal: React.FC<NewOrderModalProps> = ({ isOpen, onClose })
         fotos: JSON.stringify(finalFilenames)
       };
 
-      const data = await apiFetch('/ordenes', {
+      const data = await apiFetch('ordenes', {
         method: 'POST',
         body: JSON.stringify(orderPayload),
       });
