@@ -32,6 +32,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
   const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
   const [copying, setCopying] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editData, setEditData] = useState({
     estado: '',
     comentarios: '',
@@ -109,9 +110,6 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
   };
 
   const handleDelete = async () => {
-    console.log("Delete button clicked for order:", orderId);
-    if (!window.confirm("¿Estás seguro de que deseas eliminar esta orden? Esta acción no se puede deshacer.")) return;
-    
     setSaving(true);
     try {
       await apiFetch(`/ordenes/${orderId}`, {
@@ -124,6 +122,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
       alert("Error al eliminar la orden");
     } finally {
       setSaving(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -159,13 +158,32 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
             <h3 className="text-sm font-extrabold text-[var(--text)]">Detalles de la Orden</h3>
           </div>
           <div className="flex items-center gap-2">
-            <button 
-              onClick={handleDelete}
-              className="p-2 hover:bg-red-500/10 rounded-full text-[var(--text3)] hover:text-red-500 transition-colors mr-1"
-              title="Eliminar Orden"
-            >
-              <Trash2 size={18} />
-            </button>
+            {!showDeleteConfirm ? (
+              <button 
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-2 hover:bg-red-500/10 rounded-full text-[var(--text3)] hover:text-red-500 transition-colors mr-1"
+                title="Eliminar Orden"
+              >
+                <Trash2 size={18} />
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 bg-red-500/10 p-1 rounded-lg border border-red-500/20 animate-in fade-in slide-in-from-right-4">
+                <span className="text-[10px] font-bold text-red-500 px-2 uppercase tracking-tighter">¿Borrar?</span>
+                <button 
+                  onClick={handleDelete}
+                  disabled={saving}
+                  className="px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-md hover:bg-red-600 transition-colors"
+                >
+                  SÍ
+                </button>
+                <button 
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-2 py-1 text-[var(--text3)] text-[10px] font-bold hover:text-[var(--text)] transition-colors"
+                >
+                  NO
+                </button>
+              </div>
+            )}
             <button onClick={onClose} className="p-2 hover:bg-[var(--card)] rounded-full text-[var(--text3)] transition-colors">
               <X size={18} />
             </button>
