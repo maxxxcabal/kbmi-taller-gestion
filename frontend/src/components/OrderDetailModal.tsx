@@ -110,6 +110,11 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
   };
 
   const handleDelete = async () => {
+    if (!orderId) {
+      alert("Error: ID de orden no encontrado");
+      return;
+    }
+    
     setSaving(true);
     try {
       await apiFetch(`/ordenes/${orderId}`, {
@@ -119,7 +124,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({ orderId, isO
       onClose();
     } catch (error) {
       console.error("Error deleting order:", error);
-      alert("Error al eliminar la orden");
+      alert(error instanceof Error ? error.message : "Error al eliminar la orden");
     } finally {
       setSaving(false);
       setShowDeleteConfirm(false);

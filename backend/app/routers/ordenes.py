@@ -132,20 +132,27 @@ async def get_ai_suggestion(orden_id: UUID, db: AsyncSession = Depends(get_db), 
     )
 @router.delete("/{orden_id}")
 async def delete_order(
-    orden_id: UUID, 
+    orden_id: str, 
     db: AsyncSession = Depends(get_db),
     tenant_id: UUID = Depends(get_current_tenant_id)
 ):
     from app.models.orden import OrdenEstadoLog
+    
+    # Intentar convertir a UUID manualmente para mejor manejo de errores
+    try:
+        u_order_id = UUID(orden_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="ID de orden inválido")
+
     # 1. Verificar existencia y pertenencia
-    result = await db.execute(select(Orden).where(Orden.id == orden_id, Orden.tenant_id == tenant_id))
+    result = await db.execute(select(Orden).where(Orden.id == u_order_id, Orden.tenant_id == tenant_id))
     db_order = result.scalar_one_or_none()
     if not db_order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
     
     # 2. Borrar logs asociados
     await db.execute(
-        delete(OrdenEstadoLog).where(OrdenEstadoLog.orden_id == orden_id)
+        delete(OrdenEstadoLog).where(OrdenEstadoLog.orden_id == u_order_id)
     )
     
     # 3. Borrar orden

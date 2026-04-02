@@ -1,6 +1,8 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -59,9 +61,43 @@ async def add_cors_headers(request, call_next):
     # Force Headers - The "Nuclear" way
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-User-Email, Authorization, Accept, Origin"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-User-Email, Authorization, Accept, Origin, X-Requested-With"
     response.headers["Access-Control-Max-Age"] = "86400"
     response.headers["Access-Control-Expose-Headers"] = "*"
+    return response
+
+# Global Exception Handlers to ensure CORS headers on errors
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    response = JSONResponse(
+        status_code=422,
+        content={"detail": "Error de validación de datos", "errors": exc.errors()},
+    )
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    response = JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    response = JSONResponse(
+        status_code=500,
+        content={"detail": f"Error interno del servidor: {str(exc)}"},
+    )
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
     return response
 
 # Standard middleware removed to avoid conflicts with manual nuclear logic
