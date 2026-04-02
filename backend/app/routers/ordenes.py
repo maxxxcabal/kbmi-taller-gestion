@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
@@ -145,7 +145,7 @@ async def delete_order(
     
     # 2. Borrar logs asociados
     await db.execute(
-        select(OrdenEstadoLog).where(OrdenEstadoLog.orden_id == orden_id).delete()
+        delete(OrdenEstadoLog).where(OrdenEstadoLog.orden_id == orden_id)
     )
     
     # 3. Borrar orden

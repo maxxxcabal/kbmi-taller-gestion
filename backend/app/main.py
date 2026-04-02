@@ -39,28 +39,32 @@ app = FastAPI(
 
 @app.middleware("http")
 async def add_cors_headers(request, call_next):
+    # Definitive CORS & OPTIONS handling
     if request.method == "OPTIONS":
-        from fastapi.responses import Response
-        response = Response()
-        response.status_code = 200
+        from fastapi.responses import JSONResponse
+        response = JSONResponse(
+            status_code=200,
+            content={"status": "ok", "message": "Preflight OK"}
+        )
     else:
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception as e:
+            from fastapi.responses import JSONResponse
+            response = JSONResponse(
+                status_code=500,
+                content={"detail": f"Internal Server Error: {str(e)}"}
+            )
     
+    # Force Headers - The "Nuclear" way
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-    response.headers["Access-Control-Allow-Headers"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-User-Email, Authorization, Accept, Origin"
     response.headers["Access-Control-Max-Age"] = "86400"
+    response.headers["Access-Control-Expose-Headers"] = "*"
     return response
 
-# Standard CORSMiddleware as backup
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=False,
-    allow_methods=["*"], 
-    allow_headers=["*"], 
-    expose_headers=["*"]
-)
+# Standard middleware removed to avoid conflicts with manual nuclear logic
 
 
 # Crear carpeta de uploads si no existe
