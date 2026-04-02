@@ -33,9 +33,16 @@ app = FastAPI(
     title="FixLab API", 
     description="SaaS Multi-tenant backend para gestión de talleres",
     version="1.0.0",
-    lifespan=lifespan,
-    redirect_slashes=False
+    lifespan=lifespan
 )
+
+@app.middleware("http")
+async def add_cors_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,6 +52,7 @@ app.add_middleware(
     allow_headers=["*"], 
     expose_headers=["*"]
 )
+
 
 # Crear carpeta de uploads si no existe
 UPLOAD_DIR = "uploads"

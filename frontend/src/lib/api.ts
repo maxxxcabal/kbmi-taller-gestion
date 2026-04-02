@@ -21,19 +21,11 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
   const session = await getSession();
   const userEmail = session?.user?.email || '';
   
-  // Ensure endpoint starts with /
-  let path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  
-  // Logic to add trailing slash ONLY for base resources, not for specific IDs/UUIDs
-  // This prevents 404s on routes like /ordenes/{id}
-  const isBaseResource = ['/ordenes', '/clientes', '/config', '/auth/me', '/kb', '/stats'].some(res => 
-    path === res || path === `${res}/`
-  );
-
-  if (isBaseResource && !path.endsWith('/')) {
-    path = `${path}/`;
-  }
-  
+  /**
+   * Final URL standardization: Clean paths only (no trailing slashes).
+   * FastAPI handles these natively and our new backend middleware fixes CORS for redirects.
+   */
+  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = `${API_BASE_URL}${path}`;
 
   try {
