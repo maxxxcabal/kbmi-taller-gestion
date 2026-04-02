@@ -27,6 +27,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
    */
   const cleanEndpoint = endpoint.replace(/\/+$/, '').replace(/^\//, '');
   const url = `${API_BASE_URL.replace(/\/+$/, '')}/${cleanEndpoint}`;
+  (window as any).last_api_url = url;
 
   try {
     const response = await fetch(url, {
