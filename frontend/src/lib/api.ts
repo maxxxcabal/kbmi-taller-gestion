@@ -6,13 +6,14 @@ export const API_BASE_URL = rawBaseUrl.includes('://') ? rawBaseUrl : `https://$
 
 /**
  * Silent ping to wake up Render free-tier services.
+ * Uses a basic fetch to the root to avoid CORS preflight overhead.
  */
 export async function pingBackend() {
   try {
-    console.log("Despertando servidor backend en:", API_BASE_URL);
-    await fetch(API_BASE_URL, { mode: 'no-cors' }).catch(() => {});
+    // Basic ping to root
+    fetch(API_BASE_URL, { mode: 'no-cors', cache: 'no-store' }).catch(() => {});
   } catch (e) {
-    // Ignore errors for pings
+    // Silent
   }
 }
 
